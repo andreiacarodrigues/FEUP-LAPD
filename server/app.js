@@ -24,15 +24,9 @@ app.get('/movies', function (req, res) {
     MongoClient.connect(url, function (err, client) {
         if (err) { return console.dir(err); }
         const db = client.db(dbName);
-        db.collection('movies').find({}, { '_id': 0 }).toArray(function (err, docs) {
+        db.collection('movies').find({}).project({ '_id': 0 }).toArray(function (err, docs) {
             if (err)
                 throw err;
-            for (i in docs) {
-                let movie =docs[i];
-                if (movie.hasOwnProperty('_id')) {
-                    delete movie['_id'];
-                }
-            }
             res.send(docs)
         });
     });
