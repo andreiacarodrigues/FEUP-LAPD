@@ -36,7 +36,7 @@ app.get('/cinemas', function (req, res) {
     MongoClient.connect(url, function (err, client) {
         if (err) { return console.dir(err); }
         const db = client.db(dbName);
-        db.collection('cinemas').find({}).project({ _id: 0 }).toArray(function (err, docs) {
+        db.collection('cinemas').find({}).project({'_id': 0 }).toArray(function (err, docs) {
             if (err)
                 throw err;
             res.send(docs)
