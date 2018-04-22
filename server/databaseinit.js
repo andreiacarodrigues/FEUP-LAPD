@@ -27,6 +27,7 @@ const scrap_cinema = response => {
     name: $("#contentsNoSidebar > div:nth-child(1) > div.cinemaMorada.vcard > h1").text(),
     geo: [
       {
+        // FIXME: remove array
         latitude: $("#filmePosterDiv > a > div.geo > span.latitude").text(),
         longitute: $("#filmePosterDiv > a > div.geo > span.longitude").text()
       }
@@ -72,7 +73,6 @@ const scrap_cinema = response => {
  
 const scrap_movie = response => {
   let $ = cheerio.load(response.data);
- 
   return {
     name: $("#contentsNoSidebar > div > h1 > span[itemprop=name]").text(),
     description: $("#filmeInfoDivLeft > div[itemprop=description]").text(),
@@ -86,12 +86,16 @@ const scrap_movie = response => {
     genre: $("#filmeInfoDivRight > p > span[itemprop=genre]").text(),
     minAge: $("#filmeInfoDivRight > div > p > span[itemprop=contentRating]").text(),
     publishedDate: $("#filmeInfoDivRight > div > p > span[itemprop=datePublished]").text(),
+    trailler:'https://filmspot.pt' +  $('#filmePosterDiv > div > a').attr('href'),
     url: response.config.url
   };
- 
-  return movie;
 };
  
+const scrap_trailler = response => {
+  let $ = cheerio.load(response.data);
+  return $('#contentsLeft > div.trailerDiv.filmePosterShadow > iframe').attr('src');
+};
+
 const removeCollection = (db, name, callback) => {
   db.listCollections({ name: name }).next((err, collinfo) => {
     if (collinfo) {
@@ -122,7 +126,7 @@ const get_cinemas = async () => {
     .map((_, element) => $(element).attr("href"))
     .map((_, cinema) => () => get_site("https://filmspot.pt" + cinema));
  
-  cinemasTasks = cinemasTasks; 
+  cinemasTasks = cinemasTasks; // Remove me
  
   const cinemasResponses = await Throttle.all(cinemasTasks, {
     maxInProgress: 10,
@@ -146,7 +150,19 @@ const get_cinemas = async () => {
   });
  
   const movies = moviesResponse.map(response => scrap_movie(response));
- 
+  
+  const traillerURLs = movies.map(movie => movie.trailler).map(trailler => () => get_site(trailler));
+
+  const traillersResponses = await Throttle.all(traillerURLs, {
+    maxInProgress: 10,
+    progressCallback: result => {
+      console.log("trailers", result.amountDone + "/" + moviesTasks.length + "\r");
+    }
+  });
+
+  const traillers = traillersResponses.map(response => scrap_trailler(response));
+  
+
   const imdbTasks = movies.map(movie => movie.imdbURL.split("/")[4]).map(title => () => get_imdb(title));
  
   const imdbMovies = await Throttle.all(imdbTasks, {
@@ -158,6 +174,7 @@ const get_cinemas = async () => {
  
   for (var idx in imdbMovies) {
     movies[idx].actors = imdbMovies[idx].actors;
+    movies[idx].trailler = traillers[idx];
     movies[idx].ratings = imdbMovies[idx].ratings;
   }
  

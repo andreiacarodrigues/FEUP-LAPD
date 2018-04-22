@@ -4,7 +4,7 @@ const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 const https = require("https");
 const GooglePlaces = require('node-googleplaces');
-const backend = require('./databaseinit.js');
+const cinemaData = require('./databaseinit.js');
 const config = require('./config/config');
 
 // Database Name
@@ -13,7 +13,7 @@ const dbName = config.dbName;
 const googleplaces = new GooglePlaces(config.googleplacesKey);
 
 app.get('/init', function () {
-    backend.populateDatabase();
+    cinemaData.populateDatabase();
 });
 
 app.get('/', function (req, res) {
