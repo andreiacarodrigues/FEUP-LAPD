@@ -27,7 +27,6 @@ const scrap_cinema = response => {
     name: $("#contentsNoSidebar > div:nth-child(1) > div.cinemaMorada.vcard > h1").text(),
     geo: [
       {
-        // FIXME: remove array
         latitude: $("#filmePosterDiv > a > div.geo > span.latitude").text(),
         longitute: $("#filmePosterDiv > a > div.geo > span.longitude").text()
       }
@@ -72,7 +71,6 @@ const scrap_cinema = response => {
  
   return cinema;
 };
- 
 const scrap_movie = response => {
   let $ = cheerio.load(response.data);
   return {
@@ -95,7 +93,10 @@ const scrap_movie = response => {
  
 const scrap_trailler = response => {
   let $ = cheerio.load(response.data);
-  return $('#contentsLeft > div.trailerDiv.filmePosterShadow > iframe').attr('src');
+  return { 
+    trailler: $('#contentsLeft > div.trailerDiv.filmePosterShadow > iframe').attr('src'),
+    url:'https://filmspot.pt/' +  $('#filmeLista > div.filmeListaInfo > h2 > a').attr('href')
+  }
 };
 
 const removeCollection = (db, name, callback) => {
@@ -168,7 +169,7 @@ const get_cinemas = async () => {
   const imdbTasks = movies.map(movie => movie.imdbURL.split("/")[4]).map(title => () => get_imdb(title));
  
   const imdbMovies = await Throttle.all(imdbTasks, {
-    maxInProgress: 10,
+    maxInProgress:9,
     progressCallback: result => {
       console.log("imdb", result.amountDone + "/" + imdbTasks.length + "\r");
     }
@@ -176,8 +177,9 @@ const get_cinemas = async () => {
  
   for (var idx in imdbMovies) {
     movies[idx].actors = imdbMovies[idx].actors;
-    movies[idx].trailler = traillers[idx];
+    movies[idx].trailler = traillers[idx].trailler;
     movies[idx].ratings = imdbMovies[idx].ratings;
+    
   }
  
   MongoClient.connect("mongodb://localhost:27017/", function (err, client) {
