@@ -2,3 +2,4 @@ node_modules
 .idea/
 server/package-lock.json
 server/config/config.js
+app/config/config.js

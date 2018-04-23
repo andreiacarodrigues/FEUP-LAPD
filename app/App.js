@@ -3,6 +3,7 @@ import { Font, AppLoading, MapView, Permissions } from 'expo';
 import { ActivityIndicator, AppRegistry, Dimensions, StyleSheet, Text, View, StatusBar, Button, TouchableOpacity, TouchableNativeFeedback, TouchableHighlight, Image, TextInput, ScrollView } from 'react-native';
 import { StackNavigator, TabBarTop, TabNavigator } from 'react-navigation';
 import SearchBar from 'react-native-searchbar';
+const config = require('./config/config');
 
 var SearchEnum = {
     NONE: 0,
@@ -240,7 +241,7 @@ class HomeScreen extends React.Component {
             try{
                 /* REQUEST DOS MARKERS */
                 const request = async () => {
-                    const response = await fetch('http://192.168.1.72:3000/localizations', {
+                    const response = await fetch('http://' + config.ip + ':3000/localizations', {
                         method: 'GET',
                         headers: {
                             'Accept': 'application/json',
@@ -355,7 +356,7 @@ class InTheatersScreen extends React.Component{
         try {
             /* REQUEST DOS FILMES */
             const request = async () => {
-                const response = await fetch('http://192.168.1.72:3000/movies', {
+                const response = await fetch('http://' + config.ip + ':3000/movies', {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',
