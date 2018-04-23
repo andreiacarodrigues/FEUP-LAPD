@@ -3,15 +3,13 @@ const app = express();
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 const https = require("https");
-const GooglePlaces = require('node-googleplaces');
 const config = require('./config/config');
 
 // Database Name
 const url = 'mongodb://localhost:27017';
 const dbName = config.dbName;
-const googleplaces = new GooglePlaces(config.googleplacesKey);
 
-app.get('/init', function () {
+app.get('/init', function (req, res) {
     const cinemaData = require('./databaseinit.js');
     res.send('Created database!');
 });
@@ -25,6 +23,18 @@ app.get('/movies', function (req, res) {
         if (err) { return console.dir(err); }
         const db = client.db(dbName);
         db.collection('movies').find({}).project({ '_id': 0 }).toArray(function (err, docs) {
+            if (err)
+                throw err;
+            res.send(docs)
+        });
+    });
+});
+
+app.get('/debuts', function (req, res) {
+    MongoClient.connect(url, function (err, client) {
+        if (err) { return console.dir(err); }
+        const db = client.db(dbName);
+        db.collection('debuts').find({}).project({ '_id': 0 }).toArray(function (err, docs) {
             if (err)
                 throw err;
             res.send(docs)

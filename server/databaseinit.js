@@ -7,20 +7,23 @@ const imdbKEY = config.imdbKey;
 const dbName = config.dbName;
 const Throttle = require("promise-parallel-throttle");
 
+const express = require('express');
+const app = express();
+
 const get_site = async url => {
-  // console.log("get_site", url);
+  console.log("get_site", url);
   const response = await axios.get(url);
   if (response.status != 200) {
     throw Error("get_site error", response.status, "url");
   }
   return response;
 };
- 
+
 const get_imdb = async id => {
   // console.log("get_imdb", id);
   return await imdb.getById(id, { apiKey: imdbKEY, timeout: 3000 });
 };
- 
+
 const scrap_cinema = response => {
   let $ = cheerio.load(response.data);
   let cinema = {
@@ -35,7 +38,7 @@ const scrap_cinema = response => {
     telephone: $('#filmeInfoDiv > div > p > span[itemprop=telephone]').text(),
     movies: []
   };
- 
+
   $("#contentsNoSidebar > div").each((_, element) => {
     if ($("h2", element).text() != "") {
       let movie = {
@@ -68,12 +71,18 @@ const scrap_cinema = response => {
       cinema.movies.push(movie);
     }
   });
- 
+
   return cinema;
 };
+
 const scrap_movie = response => {
   let $ = cheerio.load(response.data);
-  return {
+  let genres = []
+  $("#filmeInfoDivRight > p > span[itemprop=genre]").each(function (i, element) {
+    genres.push($(this).text())
+  });
+
+  movie =  {
     name: $("#contentsNoSidebar > div > h1 > span[itemprop=name]").text(),
     description: $("#filmeInfoDivLeft > div[itemprop=description]").text(),
     imageurl: $("#filmePosterDiv > p > a").attr("href"),
@@ -82,20 +91,54 @@ const scrap_movie = response => {
     director: $("#filmeInfoDivLeft > p> span[itemprop=producer]").text(),
     author: $("#filmeInfoDivLeft > p> span[itemprop=author]").text(),
     imdbURL: $("#filmeInfoDivLeft > p> a[itemprop=sameAs]").text(),
-    duration: $(" #filmeInfoDivRight > p > span[itemprop=duration]").text(),
-    genre: $("#filmeInfoDivRight > p > span[itemprop=genre]").text(),
+    duration: ($(" #filmeInfoDivRight > p > span[itemprop=duration]").text().replace('T', '')).replace('M', ''),
+    genre: genres.toString(),
     minAge: $("#filmeInfoDivRight > div > p > span[itemprop=contentRating]").text(),
     publishedDate: $("#filmeInfoDivRight > div > p > span[itemprop=datePublished]").text(),
-    trailler:'https://filmspot.pt' +  $('#filmePosterDiv > div > a').attr('href'),
+    trailer: 'https://filmspot.pt' + $('#filmePosterDiv > div > a').attr('href'),
     url: response.config.url
-  };
+  }
+
+  if (movie.imdbtitle == "" ) {
+    movie.imdbtitle = movie.name;
+  }
+
+  return movie;
 };
- 
-const scrap_trailler = response => {
+
+const scrap_movieDebut = response => {
   let $ = cheerio.load(response.data);
-  return { 
-    trailler: $('#contentsLeft > div.trailerDiv.filmePosterShadow > iframe').attr('src'),
-    url:'https://filmspot.pt/' +  $('#filmeLista > div.filmeListaInfo > h2 > a').attr('href')
+  let genres = []
+  $("#filmeInfoDivRight > p > span[itemprop=genre]").each(function (i, element) {
+    genres.push($(this).text())
+  });
+
+  movie = {
+    name: $("#contentsNoSidebar > div > h1 > span[itemprop=name]").text(),
+    description: $("#filmeInfoDivLeft > div[itemprop=description]").text(),
+    imageurl: $("#filmePosterDiv > p > a").attr("href"),
+    imdbtitle: $("#contentsNoSidebar > div:nth-child(1) > h1 > span.tituloOriginal").text(),
+    realizacao: $("#filmeInfoDivLeft > p> span[itemprop=director]").text(),
+    director: $("#filmeInfoDivLeft > p> span[itemprop=producer]").text(),
+    author: $("#filmeInfoDivLeft > p> span[itemprop=author]").text(),
+    duration: ($(" #filmeInfoDivRight > p > span[itemprop=duration]").text().replace('T', '')).replace('M', ''),
+    genre: genres.toString(),
+    minAge: $("#filmeInfoDivRight > div > p > span[itemprop=contentRating]").text(),
+    publishedDate: $("#filmeInfoDivRight > div > p > span[itemprop=datePublished]").text(),
+  }
+
+  if (movie.imdbtitle == "") {
+    movie.imdbtitle = movie.name;
+  }
+
+  return movie;
+};
+
+const scrap_trailer = response => {
+  let $ = cheerio.load(response.data);
+  return {
+    trailer: $('#contentsLeft > div.trailerDiv.filmePosterShadow > iframe').attr('src'),
+    url: 'https://filmspot.pt/' + $('#filmeLista > div.filmeListaInfo > h2 > a').attr('href')
   }
 };
 
@@ -113,7 +156,7 @@ const removeCollection = (db, name, callback) => {
     }
   });
 };
- 
+
 const insertCollection = (db, doc, name, callback) => {
   db.collection(name).insertMany(doc, {}, (e, result) => {
     if (e) throw e;
@@ -121,80 +164,104 @@ const insertCollection = (db, doc, name, callback) => {
     callback();
   });
 }
- 
+
 const get_cinemas = async () => {
   const response = await get_site("https://filmspot.pt/salas/");
   let $ = cheerio.load(response.data);
   let cinemasTasks = $("#contentsLeft > ul > li > a")
     .map((_, element) => $(element).attr("href"))
     .map((_, cinema) => () => get_site("https://filmspot.pt" + cinema));
- 
-  cinemasTasks = cinemasTasks; // Remove me
- 
+
   const cinemasResponses = await Throttle.all(cinemasTasks, {
     maxInProgress: 10,
     progressCallback: result => {
       console.log("cinemas", result.amountDone + "/" + cinemasTasks.length);
     }
   });
- 
+
   const cinemas = cinemasResponses.map(response => scrap_cinema(response));
- 
+
   const allMovies = new Set([].concat.apply([], cinemas.map(cinema => cinema.movies)).map(movie => movie.url));
   const moviesTasks = [...allMovies].map(movie => () =>
     get_site(movie)
   );
- 
+
   const moviesResponse = await Throttle.all(moviesTasks, {
     maxInProgress: 10,
     progressCallback: result => {
       console.log("movies", result.amountDone + "/" + moviesTasks.length + "\r");
     }
   });
- 
-  const movies = moviesResponse.map(response => scrap_movie(response));
-  
-  const traillerURLs = movies.map(movie => movie.trailler).map(trailler => () => get_site(trailler));
 
-  const traillersResponses = await Throttle.all(traillerURLs, {
+  const movies = moviesResponse.map(response => scrap_movie(response));
+
+  const trailerURLs = movies.map(movie => movie.trailer).map(trailer => () => get_site(trailer));
+
+  const trailersResponses = await Throttle.all(trailerURLs, {
     maxInProgress: 10,
     progressCallback: result => {
-      console.log("trailers", result.amountDone + "/" + moviesTasks.length + "\r");
+      console.log("trailers", result.amountDone + "/" + trailerURLs.length + "\r");
     }
   });
 
-  const traillers = traillersResponses.map(response => scrap_trailler(response));
-  
+  const trailers = trailersResponses.map(response => scrap_trailer(response));
 
   const imdbTasks = movies.map(movie => movie.imdbURL.split("/")[4]).map(title => () => get_imdb(title));
- 
+
   const imdbMovies = await Throttle.all(imdbTasks, {
-    maxInProgress:9,
+    maxInProgress: 5,
     progressCallback: result => {
       console.log("imdb", result.amountDone + "/" + imdbTasks.length + "\r");
     }
   });
- 
+
   for (var idx in imdbMovies) {
     movies[idx].actors = imdbMovies[idx].actors;
-    movies[idx].trailler = traillers[idx].trailler;
+    movies[idx].trailer = trailers[idx].trailer;
     movies[idx].ratings = imdbMovies[idx].ratings;
-    
+
   }
- 
-  MongoClient.connect("mongodb://localhost:27017/", function (err, client) {
+
+  const moviesDebuts = await get_debuts();
+
+  MongoClient.connect("mongodb://localhost:27017/", (err,  client) => {
     if (err) { return console.dir(err); }
     const db = client.db(dbName);
-    removeCollection(db, 'movies', function () {
-      removeCollection(db, 'cinemas', function () {
-        insertCollection(db, movies, 'movies', function () {
-          insertCollection(db, cinemas, 'cinemas', function () {
-            console.log("Finished database setup");
+    removeCollection(db, 'movies', () => {
+      removeCollection(db, 'cinemas', () => {
+        removeCollection(db, 'debuts', () => {
+          insertCollection(db, movies, 'movies', () => {
+            insertCollection(db, cinemas, 'cinemas', () => {
+              insertCollection(db, moviesDebuts, 'debuts', () => {
+                console.log("Finished database setup");
+              });
+            });
           });
         });
       });
     });
   });
 };
- 
-module.exports.populateDatabase = get_cinemas();
+
+
+
+
+const get_debuts = async () => {
+  const response = await get_site("https://filmspot.pt/estreias/");
+  let $ = cheerio.load(response.data);
+  let debutTasks = $("#contentsLeft > div > div.filmeLista > div.filmeListaInfo > h3 > a")
+    .map((_, element) => $(element).attr("href"))
+    .map((_, debut) => () => get_site("https://filmspot.pt" + debut));
+
+  const moviesResponse = await Throttle.all(debutTasks, {
+    maxInProgress: 10,
+    progressCallback: result => {
+      console.log("Debut movies", result.amountDone + "/" + debutTasks.length);
+    }
+  });
+  
+  return movies = moviesResponse.map(response => scrap_movieDebut(response));
+};
+
+module.exports.get_cinemas = get_cinemas();
+
