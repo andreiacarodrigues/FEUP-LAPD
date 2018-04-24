@@ -15,7 +15,7 @@ app.get('/init', function (req, res) {
 });
 
 app.get('/', function (req, res) {
-    res.send('Database API');
+    res.send('Database API: \n \\movies - get all the movies \n \\getMovie\\:name - returns the movie that has that name \n \\debuts - get all the debuts movies  \n \\cinemas - get the list of all cinemas \n \\localizations - get the geographic points of all cinemas');
 });
 
 app.get('/movies', function (req, res) {
@@ -30,6 +30,22 @@ app.get('/movies', function (req, res) {
     });
 });
 
+app.get('/getMovie/:name', function (req, res) {
+    MongoClient.connect(url, function (err, client) {
+        if (err) { return console.dir(err); }
+        const db = client.db(dbName);
+        db.collection('movies').createIndex({ name: "text" })
+        db.collection('movies').find({ $text: { $search: "\"\"" + req.params.name + "\"\"" } }).project({ '_id': 0 }).toArray(function (err, docs) {
+            if (err)
+                throw err;
+            res.send(docs)
+        });
+    });
+});
+
+
+
+
 app.get('/debuts', function (req, res) {
     MongoClient.connect(url, function (err, client) {
         if (err) { return console.dir(err); }
@@ -42,11 +58,13 @@ app.get('/debuts', function (req, res) {
     });
 });
 
+
+
 app.get('/cinemas', function (req, res) {
     MongoClient.connect(url, function (err, client) {
         if (err) { return console.dir(err); }
         const db = client.db(dbName);
-        db.collection('cinemas').find({}).project({'_id': 0 }).toArray(function (err, docs) {
+        db.collection('cinemas').find({}).project({ '_id': 0 }).toArray(function (err, docs) {
             if (err)
                 throw err;
             res.send(docs)
@@ -58,7 +76,7 @@ app.get('/localizations', function (req, res) {
     MongoClient.connect(url, function (err, client) {
         if (err) { return console.dir(err); }
         const db = client.db(dbName);
-        db.collection('cinemas').find({}).project({ '_id': false, movies: false, address: false, telephone: false}).toArray(function (err, docs) {
+        db.collection('cinemas').find({}).project({ '_id': false, movies: false, address: false, telephone: false }).toArray(function (err, docs) {
             if (err)
                 throw err;
             res.send(docs)
