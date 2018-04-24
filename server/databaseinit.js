@@ -102,6 +102,12 @@ const scrap_movie = response => {
   if (movie.imdbtitle == "" ) {
     movie.imdbtitle = movie.name;
   }
+  if (movie.imageurl == "") {
+    movie.imageurl = "https://filmspot.com.pt/images/layout/poster_default.jpg";
+  }
+  if (movie.minAge == "") {
+    movie.minAge = 'N/A';
+  }
 
   return movie;
 };
@@ -126,7 +132,12 @@ const scrap_movieDebut = response => {
     minAge: $("#filmeInfoDivRight > div > p > span[itemprop=contentRating]").text(),
     publishedDate: $("#filmeInfoDivRight > div > p > span[itemprop=datePublished]").text(),
   }
-
+  if (movie.imageurl == "") {
+    movie.imageurl = "https://filmspot.com.pt/images/layout/poster_default.jpg";
+  }
+  if (movie.minAge == "") {
+    movie.minAge = 'N/A';
+  }
   if (movie.imdbtitle == "") {
     movie.imdbtitle = movie.name;
   }
