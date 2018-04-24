@@ -220,7 +220,7 @@ const get_cinemas = async () => {
   const imdbTasks = movies.map(movie => movie.imdbURL.split("/")[4]).map(title => () => get_imdb(title));
 
   const imdbMovies = await Throttle.all(imdbTasks, {
-    maxInProgress: 5,
+    maxInProgress: 4,
     progressCallback: result => {
       console.log("imdb", result.amountDone + "/" + imdbTasks.length + "\r");
     }

@@ -38,7 +38,10 @@ app.get('/movie/:name', function (req, res) {
         db.collection('movies').find({ $text: { $search: "\"" + req.params.name + "\"" } }).project({ '_id': 0 }).toArray(function (err, docs) {
             if (err)
                 throw err;
-            res.send(docs)
+            if(docs.length == 1)
+                res.send(docs[0])
+            else
+                res.send(docs);
         });
     });
 });
@@ -62,7 +65,10 @@ app.get('/debut/:name', function (req, res) {
         db.collection('debuts').find({ $text: { $search: "\"\"" + req.params.name + "\"\"" } }).project({ '_id': 0 }).toArray(function (err, docs) {
             if (err)
                 throw err;
-            res.send(docs)
+            if(docs.length == 1)
+                res.send(docs[0])
+            else
+                res.send(docs);
         });
     });
 });
@@ -85,10 +91,13 @@ app.get('/cinema/:name', function (req, res) {
         if (err) { return console.dir(err); }
         const db = client.db(dbName);
         db.collection('cinemas').createIndex({ name: "text" })
-        db.collection('cinemas').find({ $text: { $search: "\"\"" + req.params.name + "\"\"" } }).project({ '_id': 0 }).toArray(function (err, docs) {
+        db.collection('cinemas').find({ $text: { $search: "\"\"" + req.params.name + "\"\"" } }).project({ '_id': 0, 'movies': 1 }).toArray(function (err, docs) {
             if (err)
                 throw err;
-            res.send(docs)
+            if(docs.length == 1)
+                res.send(docs[0])
+            else
+                res.send(docs);
         });
     });
 });
