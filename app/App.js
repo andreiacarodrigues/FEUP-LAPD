@@ -21,7 +21,6 @@ const CurPageEnum = {
 
 let searchType = SearchEnum.NONE;
 let searchBarObj = null;
-let searchBarInTheaters = null;
 let curPage = CurPageEnum.CINEMA;
 
 /* API Calls -------------------------------------------------------------------------------------------------- */
