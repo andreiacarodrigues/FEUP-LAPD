@@ -31,7 +31,7 @@ const scrap_cinema = response => {
     geo: [
       {
         latitude: $("#filmePosterDiv > a > div.geo > span.latitude").text(),
-        longitute: $("#filmePosterDiv > a > div.geo > span.longitude").text()
+        longitude: $("#filmePosterDiv > a > div.geo > span.longitude").text()
       }
     ],
     address: $('#filmeInfoDiv > div > div.street-address').text() + ' ' + $('#filmeInfoDiv > div > div > span.locality').text() + ' ' + $('#filmeInfoDiv > div > div> span.postal-code').text(),
