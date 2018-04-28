@@ -1,37 +1,30 @@
 import React from 'react';
 import { Font, AppLoading, MapView, Permissions } from 'expo';
-import { ActivityIndicator, AppRegistry, Dimensions, StyleSheet, Text, View, StatusBar, Button, TouchableOpacity, TouchableNativeFeedback, TouchableHighlight, Image, TextInput, ScrollView } from 'react-native';
+import { Picker, ActivityIndicator, AppRegistry, Dimensions, StyleSheet, Text, View, StatusBar, Button, TouchableOpacity,
+    TouchableNativeFeedback, TouchableHighlight, Image, TextInput, ScrollView } from 'react-native';
 import { StackNavigator, TabBarTop, TabNavigator } from 'react-navigation';
-import SearchBar from 'react-native-searchbar';
+
 const config = require('./config/config');
 
-var SearchEnum = {
+const SearchEnum = {
     NONE: 0,
     CINEMA: 1,
     LOCATION: 2,
+    MOVIE: 3,
 };
 
-var CurPageEnum = {
+const CurPageEnum = {
     CINEMA: 0,
     INTHEATERS: 1,
     OTHER: 2,
 };
 
-var searchType = SearchEnum.NONE;
-var searchBarCinemas = null;
-var searchBarInTheaters = null;
-var curPage = CurPageEnum.CINEMA;
+let searchType = SearchEnum.NONE;
+let searchBarObj = null;
+let searchBarInTheaters = null;
+let curPage = CurPageEnum.CINEMA;
 
 /* API Calls -------------------------------------------------------------------------------------------------- */
-
-async function getMapMarkers() {
-    // TODO ir buscar info do scraping e meter neste array
-    return  [{id: 0, title:'Marker 1', description: "d1", coords: {latitude:41.183409, longitude: -8.599136 }},
-        {id: 1, title:'Marker 2', description: "d2", coords: {latitude:41.185261, longitude: -8.593759 }},
-        {id: 2, title:'Marker 3', description: "d3", coords: {latitude:41.187303, longitude: -8.599426 }},
-        {id: 3, title:'Marker 4', description: "d4", coords: {latitude:41.153489, longitude: -8.614887 }}
-    ];
-}
 
 function getSearchResults() {
     // TODO ir buscar info do scraping e meter neste array
@@ -195,6 +188,170 @@ async function getLocationAsync() {
     return Location.getCurrentPositionAsync({enableHighAccuracy: true});
 }
 
+class SearchBar extends React.Component {
+    state = {
+        text: "",
+        search_bar: null,
+    };
+
+    onSubmit(text){
+        console.log(text);
+    };
+
+    render() {
+        console.log('importante: ' + this.props.search);
+        return (
+            <View>
+                <View style={{flexDirection:'row', padding:2, alignItems:'center', justifyContent:'center',backgroundColor:'#fff'}}>
+                    <View style={{paddingLeft:15, flex:1}}>
+                        <TouchableNativeFeedback onPress={() => this.search_bar.clear() }>
+                            <Image source={ require('./assets/img/cancel3.png') } style={ {width: 20, height: 20 } } />
+                        </TouchableNativeFeedback>
+                    </View>
+                    <View style={{flex:6,padding:2,  paddingRight: 5, justifyContent:'center', height:50}}>
+                        <TextInput
+                            onChangeText={(text) => this.setState({text})}
+                            value={this.state.text}
+                            style={{backgroundColor:'transparent', fontFamily:'quicksand', fontSize:15, paddingLeft:20, paddingRight:20}}
+                            onSubmitEditing = {()=>{this.onSubmit(this.state.text)}}
+                            placeholder="Search"
+                            ref={element => {
+                                this.search_bar = element
+                            }}
+                            autoCorrect={false}
+                            underlineColorAndroid='transparent'
+                        />
+                    </View>
+                    <View style={{paddingLeft:10,flex:1}}>
+                        <TouchableNativeFeedback onPress={() => this.onSubmit(this.state.text) }>
+                            <Image source={ require('./assets/img/search2.png') } style={ { width: 25, height: 25 } } />
+                        </TouchableNativeFeedback>
+                    </View>
+                </View>
+            </View>
+        );
+    }
+}
+
+class Search extends React.Component {
+    state = {
+        search: SearchEnum.CINEMA,
+        showing: false,
+        text: "",
+    };
+
+    show(){
+        this.setState({showing: true});
+    }
+
+    hide(){
+        this.setState({showing: false});
+    }
+
+    isShowing(){
+        return this.state.showing;
+    }
+
+    render(){
+        console.log('este é o search: ' + this.state.search);
+        if(this.state.showing) {
+            if (this.state.search === SearchEnum.CINEMA || this.state.search === SearchEnum.NONE) {
+                return (
+                    <View>
+                        <View style={{flexDirection: 'row', backgroundColor: 'white'}}>
+                            <View style={styles.searchButtonsPressed}>
+                                <TouchableNativeFeedback onPress={() => {
+                                    this.setState({search: SearchEnum.CINEMA})
+                                }}>
+                                    <Text style={styles.searchButtonsTxtPressed}>Cinema</Text>
+                                </TouchableNativeFeedback>
+                            </View>
+                            <View style={styles.searchButtons}>
+                                <TouchableNativeFeedback onPress={() => {
+                                    this.setState({search: SearchEnum.MOVIE})
+                                }}>
+                                    <Text style={styles.searchButtonsTxt}>Filme</Text>
+                                </TouchableNativeFeedback>
+                            </View>
+                            <View style={styles.searchButtons}>
+                                <TouchableNativeFeedback onPress={() => {
+                                    this.setState({search: SearchEnum.LOCATION})
+                                }}>
+                                    <Text style={styles.searchButtonsTxt}>Localização</Text>
+                                </TouchableNativeFeedback>
+                            </View>
+                        </View>
+                        <SearchBar search={this.state.search}/>
+                    </View>
+                )
+            }
+            else if (this.state.search === SearchEnum.MOVIE) {
+                return (
+                    <View>
+                        <View style={{flexDirection: 'row', backgroundColor: 'white'}}>
+                            <View style={styles.searchButtons}>
+                                <TouchableNativeFeedback onPress={() => {
+                                    this.setState({search: SearchEnum.CINEMA})
+                                }}>
+                                    <Text style={styles.searchButtonsTxt}>Cinema</Text>
+                                </TouchableNativeFeedback>
+                            </View>
+                            <View style={styles.searchButtonsPressed}>
+                                <TouchableNativeFeedback onPress={() => {
+                                    this.setState({search: SearchEnum.MOVIE})
+                                }}>
+                                    <Text style={styles.searchButtonsTxtPressed}>Filme</Text>
+                                </TouchableNativeFeedback>
+                            </View>
+                            <View style={styles.searchButtons}>
+                                <TouchableNativeFeedback onPress={() => {
+                                    this.setState({search: SearchEnum.LOCATION})
+                                }}>
+                                    <Text style={styles.searchButtonsTxt}>Localização</Text>
+                                </TouchableNativeFeedback>
+                            </View>
+                        </View>
+                        <SearchBar search={this.state.search}/>
+                    </View>
+                )
+            }
+            else if (this.state.search === SearchEnum.LOCATION) {
+                return (
+                    <View>
+                        <View style={{flexDirection: 'row', backgroundColor: 'white'}}>
+                            <View style={styles.searchButtons}>
+                                <TouchableNativeFeedback onPress={() => {
+                                    this.setState({search: SearchEnum.CINEMA})
+                                }}>
+                                    <Text style={styles.searchButtonsTxt}>Cinema</Text>
+                                </TouchableNativeFeedback>
+                            </View>
+                            <View style={styles.searchButtons}>
+                                <TouchableNativeFeedback onPress={() => {
+                                    this.setState({search: SearchEnum.MOVIE})
+                                }}>
+                                    <Text style={styles.searchButtonsTxt}>Filme</Text>
+                                </TouchableNativeFeedback>
+                            </View>
+                            <View style={styles.searchButtonsPressed}>
+                                <TouchableNativeFeedback onPress={() => {
+                                    this.setState({search: SearchEnum.LOCATION})
+                                }}>
+                                    <Text style={styles.searchButtonsTxtPressed}>Localização</Text>
+                                </TouchableNativeFeedback>
+                            </View>
+                        </View>
+                        <SearchBar search={this.state.search}/>
+                    </View>
+                )
+            }
+            else return(null);
+        }
+        else return(null);
+    };
+
+}
+
 class HomeScreen extends React.Component {
     state = {
         isReady: false,
@@ -203,13 +360,6 @@ class HomeScreen extends React.Component {
         markers: [],
         searchResults: [],
     };
-
-    handleSearch() {
-        searchBarCinemas.hide();
-        let results = getSearchResults();
-        this.setState({searchResults: results, search: searchType});
-    }
-
 
     /* Vai buscar as permissões de localização e os marcadores */
     async componentDidMount() {
@@ -249,7 +399,6 @@ class HomeScreen extends React.Component {
                         }
                     });
                     const json = await response.json();
-                    console.log(json);
                     this.setState({markers: json});
                 };
 
@@ -261,21 +410,19 @@ class HomeScreen extends React.Component {
         }
     }
 
-    // TODO não sei se este método vai ser necessário
+    // TODO não sei se este método vai ser necessário - só fazer render dos pontos em que está perto
     onRegionChange(region) {
     }
-
 
    render(){
       const { navigate } = this.props.navigation;
       if(this.state.isReady) {
-          if(this.state.search !== SearchEnum.CINEMA) {
               return (
                   <View style={{backgroundColor: 'black', flex: 1}}>
-                      <SearchBar ref={(ref) => searchBarCinemas = ref} onSubmitEditing={() => this.handleSearch() }
-                                 placeholder={'Pesquisa'} fontFamily={'quicksand'} fontSize={18} clearOnShow/>
+                      <Search style={{zIndex:5, position: 'absolute', top:0, left:0}} ref={(ref) => searchBarObj = ref} />
                       <MapView
                           style={{
+                              zIndex :1,
                               flex: 1,
                               width: Dimensions.get('window').width,
                               height: Dimensions.get('window').height
@@ -298,16 +445,15 @@ class HomeScreen extends React.Component {
                               />
                           ))}
                       </MapView>
+
                   </View>);
           }
           else {
               return( <ScrollView style={{flex: 1}}>
-                      <SearchBar ref={(ref) => searchBarCinemas = ref} onSubmitEditing={() => this.handleSearch()}
-                                 placeholder={'Pesquisa'} fontFamily={'quicksand'} fontSize={18} clearOnShow/>
                   {this.state.searchResults.map((cinema) => (
 
                       <TouchableNativeFeedback key = {cinema.id}  onPress={() =>
-                          navigate('Cinema', { id: cinema.id }) // TODO AINDA NAO EXISTE ESTA PAGINA
+                          navigate('CinemaInfo', { id: cinema.id }) // TODO AINDA NAO EXISTE ESTA PAGINA
                       }>
                           <View style = {styles.inTheatersList}>
                               <View style = {styles.inTheatersListTextView}>
@@ -328,10 +474,6 @@ class HomeScreen extends React.Component {
               </ScrollView>);
           }
       }
-      else {
-          return(<View/>);
-      }
-  }
 }
 
 class InTheatersScreen extends React.Component{
@@ -375,25 +517,13 @@ class InTheatersScreen extends React.Component{
         }
     }
 
-    /* Navega para a página do filme */
-    _onPressMovie(id) {
-        alert('You tapped the button with id=' + id + '!');
-    }
-
-    handleSearch() {
-        searchBarInTheaters.hide();
-        this.setState({ search: searchType });
-        this.props.navigation.navigate('Cinemas');
-    }
-
     render(){
         const { navigate } = this.props.navigation;
         if(this.state.isReady) {
-            return(<ScrollView style = {{backgroundColor: '#f4f4f4'}}
+            return(
+                <ScrollView style = {{backgroundColor: '#f4f4f4'}}
                                keyboardShouldPersistTaps="always"
                                keyboardDismissMode='on-drag'>
-                    <SearchBar ref={(ref) => searchBarInTheaters = ref} onSubmitEditing={() => this.handleSearch()}
-                               placeholder={'Pesquisa'} fontFamily={'quicksand'} fontSize={18} clearOnShow/>
                     {this.state.movies.map((movie) => (
 
                         <TouchableNativeFeedback key = {movie.name}  onPress={() =>
@@ -417,7 +547,6 @@ class InTheatersScreen extends React.Component{
                         </TouchableNativeFeedback>
                         ))
                     }
-
                 </ScrollView>
             );
         }
@@ -447,14 +576,12 @@ const HomePageTabs = TabNavigator({
                 return;
             }
             if (scene.focused === false) { //if the current tab is not selected => jump to the new tab
-                console.log("Index Scene: "+  scene.index);
                 if(scene.index === 0){ // Cinema
                     curPage = CurPageEnum.CINEMA;
                 }
                 else { // Em Cartaz
                     curPage = CurPageEnum.INTHEATERS;
                 }
-                console.log("CurPage " + curPage);
                 jumpToIndex(scene.index);
             }
             if (scene.route.index !== 0) { //if the route is not the initial one => pop all stacked routes from the sstack to reach the initial route
@@ -482,57 +609,7 @@ const HomePageTabs = TabNavigator({
 
 /* Homepage Header -------------------------------------------------------------------------------------------------- */
 
-class RightHeaderButtons extends React.Component {
-
-    _onCinemaSearchPress(){
-
-        searchType = SearchEnum.CINEMA;
-        console.log(searchType + " " + curPage);
-        if(curPage == CurPageEnum.CINEMA)
-        {
-            if(searchBarCinemas != null) {
-                searchBarCinemas.show();
-            }
-        }
-        if(curPage == CurPageEnum.INTHEATERS)
-        {
-            if(searchBarInTheaters != null) {
-                searchBarInTheaters.show();
-            }
-        }
-    };
-
-    _onLocationSearchPress(){
-        searchType = SearchEnum.LOCATION;
-        console.log(searchType + " " + curPage);
-        if(curPage == CurPageEnum.CINEMA)
-        {
-            if(searchBarCinemas != null) {
-                searchBarCinemas.show();
-            }
-        }
-        if(curPage == CurPageEnum.INTHEATERS)
-        {
-            if(searchBarInTheaters != null) {
-                searchBarInTheaters.show();
-            }
-        }
-    };
-
-    render() {
-        return (
-            <View style={styles.rightHeaderButtons}>
-                <TouchableOpacity onPress={this._onCinemaSearchPress}>
-                    <Image style={styles.headerButtonImage} source={require("./assets/img/search.png")}/>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={this._onLocationSearchPress}>
-                    <Image style={styles.headerButtonImage} source={require("./assets/img/map.png")}/>
-                </TouchableOpacity>
-            </View>
-        );
-    }
-}
-
+/* Para pôr o logo aqui */
 class HeaderLogo extends React.Component {
     render() {
         return (
@@ -548,7 +625,7 @@ const Navigator = StackNavigator({
     },
     {
         initialRouteName: 'Home',
-        navigationOptions: {
+        navigationOptions: ({ navigation }) => ({
             headerTitle: <HeaderLogo />,
             headerStyle: {
                 backgroundColor: "#9b3a45",
@@ -559,9 +636,51 @@ const Navigator = StackNavigator({
                 fontWeight: 'normal',
             },
             headerRight: (
-                <RightHeaderButtons/>
+                <View style={{
+                    alignSelf: 'stretch',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor:'#9b3a45',
+                    flexDirection:'row',
+                    paddingRight: 10,
+                    paddingLeft: 20,}}>
+                    <TouchableOpacity onPress={() =>{
+                        if(curPage !== CurPageEnum.CINEMA)
+                        {
+                            navigation.navigate('Cinemas');
+                        }
+                        if(searchBarObj.isShowing())
+                        {
+                            searchBarObj.hide();
+                        }
+                        else
+                        {
+                            searchBarObj.show();
+                        }
+                    }}>
+                        <Image style={{
+                            resizeMode: 'center',
+                            height:25,
+                            width:25,
+                            paddingRight: 40,
+                        }} source={require("./assets/img/search.png")}/>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => {
+                        if(curPage !== CurPageEnum.CINEMA)
+                        {
+                            navigation.navigate('Cinemas');
+                        }
+                    }}>
+                        <Image style={{
+                            resizeMode: 'center',
+                            height:25,
+                            width:25,
+                            paddingRight: 40,
+                        }} source={require("./assets/img/map.png")}/>
+                    </TouchableOpacity>
+                </View>
             ),
-        }
+        })
     }
 );
 
@@ -608,6 +727,39 @@ export default class App extends React.Component {
 // -----------------------------------------  Styles --------------------------------------------------
 
 const styles = StyleSheet.create({
+    searchBar:{
+        backgroundColor: 'white',
+        color: '#161616',
+
+    },
+    searchButtonsTxt:{
+        fontSize: 16,
+        fontFamily: 'quicksand',
+        color: '#9b3a45',
+        textAlign:'center',
+        padding:5,
+    },
+    searchButtonsTxtPressed:{
+        fontSize: 16,
+        fontFamily: 'quicksand',
+        color: 'white',
+        textAlign:'center',
+        padding:5,
+    },
+    searchButtonsPressed:{
+        flex:1,
+        backgroundColor:'#9b3a45',
+        borderColor:'#9b3a45',
+        borderWidth:1,
+        margin:.5,
+    },
+    searchButtons:{
+        flex:1,
+        backgroundColor:'white',
+        borderColor:'#9b3a45',
+        borderWidth:1,
+        margin:.5,
+    },
     movieTrailerBtnText:{
          color:"white",
         fontSize: 16,
