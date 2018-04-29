@@ -72,7 +72,7 @@ const scrap_cinema = response => {
       cinema.movies.push(movie);
     }
   });
-
+  console.log(cinema)
   return cinema;
 };
 
@@ -94,10 +94,15 @@ const scrap_movie = response => {
     imdbURL: $("#filmeInfoDivLeft > p> a[itemprop=sameAs]").text(),
     duration: ($(" #filmeInfoDivRight > p > span[itemprop=duration]").text().replace('T', '')).replace('M', ''),
     genre: genres.toString(),
+    trailer: 'https://filmspot.pt' + $('#filmePosterDiv > div.trailerLinkDiv > a').attr('href') || null,
     minAge: $("#filmeInfoDivRight > div > p > span[itemprop=contentRating]").text(),
     publishedDate: $("#filmeInfoDivRight > div > p > span[itemprop=datePublished]").text(),
-    trailer: 'https://filmspot.pt' + $('#filmePosterDiv > div > a').attr('href'),
+    
     url: response.config.url
+  }
+
+  if($('#filmePosterDiv > div.trailerLinkDiv > a').attr('href') == "") {
+     movie.trailer = null;
   }
 
   if (movie.imdbtitle == "" ) {
@@ -148,10 +153,8 @@ const scrap_movieDebut = response => {
 
 const scrap_trailer = response => {
   let $ = cheerio.load(response.data);
-  return {
-    trailer: $('#contentsLeft > div.trailerDiv.filmePosterShadow > iframe').attr('src'),
-    url: 'https://filmspot.pt/' + $('#filmeLista > div.filmeListaInfo > h2 > a').attr('href')
-  }
+  return $('#contentsLeft > div.trailerDiv.filmePosterShadow > iframe').attr('src')
+    
 };
 
 const removeCollection = (db, name, callback) => {
@@ -171,7 +174,7 @@ const removeCollection = (db, name, callback) => {
 
 const insertCollection = (db, doc, name, callback) => {
   db.collection(name).insertMany(doc, {}, (e, result) => {
-    if (e) throw e;
+    if (e) console.log(e);
     console.log("Inserted " + result.result.n + " movies into the movies collection");
     callback();
   });
@@ -180,10 +183,10 @@ const insertCollection = (db, doc, name, callback) => {
 const get_cinemas = async () => {
   const response = await get_site("https://filmspot.pt/salas/");
   let $ = cheerio.load(response.data);
-  let cinemasTasks = $("#contentsLeft > ul > li > a")
-    .map((_, element) => $(element).attr("href"))
+  let cinemasTasks = $("#contentsLeft > ul.dotsSpace > li")
+    .map((_, element) => $("a", element).attr("href"))
     .map((_, cinema) => () => get_site("https://filmspot.pt" + cinema));
-
+    
   const cinemasResponses = await Throttle.all(cinemasTasks, {
     maxInProgress: 10,
     progressCallback: result => {
@@ -192,22 +195,24 @@ const get_cinemas = async () => {
   });
 
   const cinemas = cinemasResponses.map(response => scrap_cinema(response));
+  console.log(cinemas)
 
-  const allMovies = new Set([].concat.apply([], cinemas.map(cinema => cinema.movies)).map(movie => movie.url));
-  const moviesTasks = [...allMovies].map(movie => () =>
-    get_site(movie)
-  );
+  const responseMovie = await get_site("https://filmspot.pt/filmes/");
+  $ = cheerio.load(responseMovie.data);
+  let allMovies = $("div.filmeLista")
+    .map((_, element) => $("div.filmeListaPoster > a", element).attr("href"))
+    .map((_, movie) => () => get_site("https://filmspot.pt" + movie))
 
-  const moviesResponse = await Throttle.all(moviesTasks, {
+  const moviesResponse = await Throttle.all(allMovies, {
     maxInProgress: 10,
     progressCallback: result => {
-      console.log("movies", result.amountDone + "/" + moviesTasks.length + "\r");
+      console.log("movies", result.amountDone + "/" + allMovies.length + "\r");
     }
   });
 
   const movies = moviesResponse.map(response => scrap_movie(response));
 
-  const trailerURLs = movies.map(movie => movie.trailer).map(trailer => () => get_site(trailer));
+  const trailerURLs = movies.filter(movie => movie.trailer != null).map(movie => movie.trailer).map(trailer => () => get_site(trailer));
 
   const trailersResponses = await Throttle.all(trailerURLs, {
     maxInProgress: 10,
@@ -229,7 +234,7 @@ const get_cinemas = async () => {
 
   for (var idx in imdbMovies) {
     movies[idx].actors = imdbMovies[idx].actors;
-    movies[idx].trailer = trailers[idx].trailer;
+    movies[idx].trailer = trailers[idx];
     movies[idx].ratings = imdbMovies[idx].ratings;
 
   }
