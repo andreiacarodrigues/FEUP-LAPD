@@ -72,7 +72,6 @@ const scrap_cinema = response => {
       cinema.movies.push(movie);
     }
   });
-  console.log(cinema)
   return cinema;
 };
 
@@ -97,7 +96,6 @@ const scrap_movie = response => {
     trailer: 'https://filmspot.pt' + $('#filmePosterDiv > div.trailerLinkDiv > a').attr('href') || null,
     minAge: $("#filmeInfoDivRight > div > p > span[itemprop=contentRating]").text(),
     publishedDate: $("#filmeInfoDivRight > div > p > span[itemprop=datePublished]").text(),
-    
     url: response.config.url
   }
 
@@ -154,7 +152,6 @@ const scrap_movieDebut = response => {
 const scrap_trailer = response => {
   let $ = cheerio.load(response.data);
   return $('#contentsLeft > div.trailerDiv.filmePosterShadow > iframe').attr('src')
-    
 };
 
 const removeCollection = (db, name, callback) => {
@@ -174,7 +171,7 @@ const removeCollection = (db, name, callback) => {
 
 const insertCollection = (db, doc, name, callback) => {
   db.collection(name).insertMany(doc, {}, (e, result) => {
-    if (e) console.log(e);
+    if (e) throw e;
     console.log("Inserted " + result.result.n + " movies into the movies collection");
     callback();
   });
@@ -231,6 +228,7 @@ const get_cinemas = async () => {
       console.log("imdb", result.amountDone + "/" + imdbTasks.length + "\r");
     }
   });
+  
 
   for (var idx in imdbMovies) {
     movies[idx].actors = imdbMovies[idx].actors;
