@@ -58,39 +58,43 @@ class MovieScreen extends React.Component{
         curPage = CurPageEnum.OTHER;
 
         try {
-            console.log('http://' + config.ip + ':3000/movie/"' + this.props.navigation.state.params.name + '"');
+            let url = 'http://' + config.ip + ':3000/movieID/' + this.props.navigation.state.params.id;
             /* REQUEST DA INFO FILME */
-            const request = async () => {
-                const response = await fetch('http://' + config.ip + ':3000/movie/"' + this.props.navigation.state.params.name + '"', {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                       }});
-                const json = await response.json();
-                this.setState({info: json});
-                console.log(json);
+            if(this.props.navigation.state.params.isDebut) {
+                url = 'http://' + config.ip + ':3000/debutID/' + this.props.navigation.state.params.id;
+            }
 
-                if(this.state.info.ratings !== [])
-                {
-                    for(let i = 0; i < this.state.info.ratings.length; i++)
+                const request = async () => {
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                           }});
+                    const json = await response.json();
+                    this.setState({info: json});
+                    console.log(json);
+
+                    if(this.state.info.ratings && this.state.info.ratings !== [])
                     {
-                        if(this.state.info.ratings[i]['Source'] === "Internet Movie Database")
+                        for(let i = 0; i < this.state.info.ratings.length; i++)
                         {
-                            this.setState({ratingImdb: this.state.info.ratings[i]['Value']});
-                        }
-                        else if(this.state.info.ratings[i]['Source'] === "Rotten Tomatoes")
-                        {
-                            this.setState({ratingRt: this.state.info.ratings[i]['Value']});
-                        }
-                        else if(this.state.info.ratings[i]['Source'] === "Metacritic")
-                        {
-                            this.setState({ratingMc: this.state.info.ratings[i]['Value']});
+                            if(this.state.info.ratings[i]['Source'] === "Internet Movie Database")
+                            {
+                                this.setState({ratingImdb: this.state.info.ratings[i]['Value']});
+                            }
+                            else if(this.state.info.ratings[i]['Source'] === "Rotten Tomatoes")
+                            {
+                                this.setState({ratingRt: this.state.info.ratings[i]['Value']});
+                            }
+                            else if(this.state.info.ratings[i]['Source'] === "Metacritic")
+                            {
+                                this.setState({ratingMc: this.state.info.ratings[i]['Value']});
+                            }
                         }
                     }
-                }
 
-                this.setState({isReady: true});
+                    this.setState({isReady: true});
             };
             request();
         }
@@ -218,6 +222,187 @@ class MovieScreen extends React.Component{
         }
     }
 }
+
+
+/* Cinema Screen -------------------------------------------------------------------------------------------------- */
+class CinemaSessions extends React.Component {
+    state = {
+        isReady: false,
+        searchResults: [],
+    };
+
+    /* Vai buscar a lista dos cinemas */
+    async componentDidMount() {
+
+        willFocus = this.props.navigation.addListener(
+            'willFocus',
+            payload => {
+                this.forceUpdate();
+                if(curPage !== CurPageEnum.OTHER)
+                    curPage = CurPageEnum.OTHER;
+            }
+        );
+
+        try {
+            /* REQUEST DOS FILMES */
+            /* const request = async () => {
+                 const response = await fetch('http://' + config.ip + ':3000/movies', {
+                     method: 'GET',
+                     headers: {
+                         'Accept': 'application/json',
+                         'Content-Type': 'application/json'
+                     }
+                 });
+                 const json = await response.json();
+                 this.setState({movies: json});
+                 this.setState({ isReady: true });
+             };
+
+             request();*/
+
+            /* Apagar isto quando a parte de cima funcionar */
+            this.setState({searchResults: getSearchResults()});
+            this.setState({ isReady: true });
+        }
+        catch(e) {
+            console.log(e);
+        }
+    }
+
+    render(){
+        const { navigate } = this.props.navigation;
+        if(this.state.isReady)
+        {
+            return( <ScrollView style={{flex: 1}}>
+                {this.state.searchResults.map((cinema) => (
+                    <TouchableNativeFeedback key = {cinema.id}  onPress={() =>
+                        navigate('CinemaInfo', { id: cinema.id }) // TODO AINDA NAO EXISTE ESTA PAGINA
+                    }>
+                        <View style = {styles.inTheatersList}>
+                            <View style = {styles.inTheatersListTextView}>
+                                <Text  style = {styles.inTheatersListTextTitle}>{cinema.name}</Text>
+
+                                <Text style = {styles.inTheatersListText}>  <Image style={{width:30, height:40}} source={require('./assets/img/location.png')}/> <Text>{cinema.location}</Text></Text>
+                            </View>
+                            <View style = {styles.inTheatersListButtonView}>
+                                <Image
+                                    style={styles.inTheatersListButton}
+                                    source={require('./assets/img/next.png')}
+                                />
+                            </View>
+                        </View>
+                    </TouchableNativeFeedback>
+                ))
+                }
+            </ScrollView>);
+        }
+        else return null;
+    }
+}
+class CinemaInfo extends React.Component {
+    state = {
+        isReady: false,
+        searchResults: [],
+    };
+
+
+    /* Vai buscar a lista dos cinemas */
+    async componentDidMount() {
+
+        /* Isto é necessário para ele fazer update e conseguir abrir a janela do search */
+        willFocus = this.props.navigation.addListener(
+            'willFocus',
+            payload => {
+                this.forceUpdate();
+                if(curPage !== CurPageEnum.OTHER)
+                    curPage = CurPageEnum.OTHER;
+            }
+        );
+
+        try {
+            /* REQUEST DOS FILMES */
+            /* const request = async () => {
+                 const response = await fetch('http://' + config.ip + ':3000/movies', {
+                     method: 'GET',
+                     headers: {
+                         'Accept': 'application/json',
+                         'Content-Type': 'application/json'
+                     }
+                 });
+                 const json = await response.json();
+                 this.setState({movies: json});
+                 this.setState({ isReady: true });
+             };
+
+             request();*/
+
+            /* Apagar isto quando a parte de cima funcionar */
+            this.setState({searchResults: getSearchResults()});
+            this.setState({ isReady: true });
+        }
+        catch(e) {
+            console.log(e);
+        }
+    }
+
+    render(){
+        const { navigate } = this.props.navigation;
+        if(this.state.isReady)
+        {
+            return( <ScrollView style={{flex: 1}}>
+                {this.state.searchResults.map((cinema) => (
+                    <TouchableNativeFeedback key = {cinema.id}  onPress={() =>
+                        navigate('CinemaInfo', { id: cinema.id }) // TODO AINDA NAO EXISTE ESTA PAGINA
+                    }>
+                        <View style = {styles.inTheatersList}>
+                            <View style = {styles.inTheatersListTextView}>
+                                <Text  style = {styles.inTheatersListTextTitle}>{cinema.name}</Text>
+                                <Text style = {styles.inTheatersListText}>  <Image style={{width:30, height:40}} source={require('./assets/img/location.png')}/> <Text>{cinema.location}</Text></Text>
+                            </View>
+                            <View style = {styles.inTheatersListButtonView}>
+                                <Image
+                                    style={styles.inTheatersListButton}
+                                    source={require('./assets/img/next.png')}
+                                />
+                            </View>
+                        </View>
+                    </TouchableNativeFeedback>
+                ))
+                }
+            </ScrollView>);
+        }
+        else return null;
+    }
+}
+
+const CinemaTabs = TabNavigator(
+    {
+        'Filmes Em Cartaz': {screen: CinemaSessions},
+        'Saber Mais': {screen: CinemaInfo},
+    },
+    {   tabBarComponent: TabBarTop,
+        navigationOptions: ({navigation}) => ({
+            headerRight: (null),
+        }),
+        tabBarOptions: {
+            swipeEnabled: false,
+            upperCaseLabel: false,
+            activeTintColor:'white',
+            labelStyle: {
+                fontSize: 19,
+                fontFamily: 'quicksand',
+            },
+            indicatorStyle: {
+                backgroundColor: '#e0e0e0'
+            },
+
+            style: {
+                backgroundColor: '#822f3b',
+            },
+        },
+    });
+
+
 
 /* Homepage Screens ------------------------------------------------------------------------------------------------- */
 
@@ -481,10 +666,10 @@ class HomeScreen extends React.Component {
                                       longitude: Number(marker.geo[0].longitude)
                                   }}
                                   title={marker.name}
+                                  onCalloutPress={() => navigate('Cinema', { id: marker['_id'] })}
                               />
                           ))}
                       </MapView>
-
                   </View>);
           }
           else {
@@ -566,7 +751,7 @@ class InTheatersScreen extends React.Component{
                     {this.state.movies.map((movie) => (
 
                         <TouchableNativeFeedback key = {movie.name}  onPress={() =>
-                            navigate('Movie', { name: movie.name })
+                            navigate('Movie', { name: movie.name, id: movie['_id'], isDebut: false })
                         }>
                         <View style = {styles.inTheatersList}>
                             <Image source={{uri: movie.imageurl}} style = {styles.inTheatersListImg}/>
@@ -602,11 +787,177 @@ class InTheatersScreen extends React.Component{
     }
 }
 
+class PremiersScreen extends React.Component{
+    state = {
+        isReady: false,
+        movies: [],
+    };
+
+    /* Vai buscar a lista dos filmes */
+    async componentDidMount() {
+
+        /* Isto é necessário para ele fazer update e conseguir abrir a janela do search */
+        willFocus = this.props.navigation.addListener(
+            'willFocus',
+            payload => {
+                this.forceUpdate();
+                if(curPage !== CurPageEnum.INTHEATERS)
+                    curPage = CurPageEnum.INTHEATERS;
+            }
+        );
+
+        try {
+            /* REQUEST DOS FILMES */
+            const request = async () => {
+                const response = await fetch('http://' + config.ip + ':3000/debuts', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const json = await response.json();
+                this.setState({movies: json});
+                this.setState({ isReady: true });
+            };
+
+            request();
+        }
+        catch(e) {
+            console.log(e);
+        }
+    }
+
+    render(){
+        const { navigate } = this.props.navigation;
+        if(this.state.isReady) {
+            return(
+                <ScrollView style = {{backgroundColor: '#f4f4f4'}}
+                            keyboardShouldPersistTaps="always"
+                            keyboardDismissMode='on-drag'>
+                    {this.state.movies.map((movie) => (
+
+                        <TouchableNativeFeedback key = {movie.name}  onPress={() =>
+                            navigate('Movie', { name: movie.name, id: movie['_id'], isDebut: true })
+                        }>
+                            <View style = {styles.inTheatersList}>
+                                <Image source={{uri: movie.imageurl}} style = {styles.inTheatersListImg}/>
+                                <View style = {styles.inTheatersListTextView}>
+                                    <Text style = {styles.inTheatersListTextTitle}>{movie.name}</Text>
+                                    <Text style = {styles.inTheatersListText}>{movie.genre}</Text>
+                                    <Text style = {styles.inTheatersListText}>{movie.minAge}</Text>
+                                    <Text style = {styles.inTheatersListText}>{movie.duration} minutos</Text>
+                                </View>
+                                <View style = {styles.inTheatersListButtonView}>
+                                    <Image
+                                        style={styles.inTheatersListButton}
+                                        source={require('./assets/img/next.png')}
+                                    />
+                                </View>
+                            </View>
+                        </TouchableNativeFeedback>
+                    ))
+                    }
+                </ScrollView>
+            );
+        }
+        else{
+            return(<View  style={{
+                flex:1,
+                flexDirection:'row',
+                alignItems:'center',
+                justifyContent:'center'
+            }}>
+                <ActivityIndicator size="large" color="#9b3a45" />
+            </View>);
+        }
+    }
+}
+
+/* Search Results --------------------------------------------------------------------------------------------------- */
+
+class CinemaSearch extends React.Component {
+    state = {
+        isReady: false,
+        searchResults: [],
+    };
+
+    /* Vai buscar a lista dos cinemas */
+    async componentDidMount() {
+
+        /* Isto é necessário para ele fazer update e conseguir abrir a janela do search */
+        willFocus = this.props.navigation.addListener(
+            'willFocus',
+            payload => {
+                this.forceUpdate();
+                if(curPage !== CurPageEnum.INTHEATERS)
+                    curPage = CurPageEnum.INTHEATERS;
+            }
+        );
+
+        try {
+            /* REQUEST DOS FILMES */
+           /* const request = async () => {
+                const response = await fetch('http://' + config.ip + ':3000/movies', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const json = await response.json();
+                this.setState({movies: json});
+                this.setState({ isReady: true });
+            };
+
+            request();*/
+
+           /* Apagar isto quando a parte de cima funcionar */
+            this.setState({searchResults: getSearchResults()});
+            this.setState({ isReady: true });
+        }
+        catch(e) {
+            console.log(e);
+        }
+    }
+
+    render(){
+        const { navigate } = this.props.navigation;
+        if(this.state.isReady)
+        {
+            return( <ScrollView style={{flex: 1}}>
+                {this.state.searchResults.map((cinema) => (
+                    <TouchableNativeFeedback key = {cinema.id}  onPress={() =>
+                        navigate('CinemaInfo', { id: cinema.id }) // TODO AINDA NAO EXISTE ESTA PAGINA
+                    }>
+                        <View style = {styles.inTheatersList}>
+                            <View style = {styles.inTheatersListTextView}>
+                                <Text  style = {styles.inTheatersListTextTitle}>{cinema.name}</Text>
+
+                                <Text style = {styles.inTheatersListText}>  <Image style={{width:30, height:40}} source={require('./assets/img/location.png')}/> <Text>{cinema.location}</Text></Text>
+                            </View>
+                            <View style = {styles.inTheatersListButtonView}>
+                                <Image
+                                    style={styles.inTheatersListButton}
+                                    source={require('./assets/img/next.png')}
+                                />
+                            </View>
+                        </View>
+                    </TouchableNativeFeedback>
+                ))
+                }
+            </ScrollView>);
+        }
+        else return null;
+    }
+}
+
 /* Homepage Tabs ---------------------------------------------------------------------------------------------------- */
 
 const HomePageTabs = TabNavigator({
     'Cinemas': {screen: HomeScreen},
     'Em Cartaz': {screen: InTheatersScreen},
+    'Estreias': {screen: PremiersScreen},
 },
 {   tabBarComponent: TabBarTop,
     navigationOptions: ({navigation}) => ({
@@ -633,7 +984,7 @@ const HomePageTabs = TabNavigator({
         upperCaseLabel: false,
         activeTintColor:'white',
         labelStyle: {
-            fontSize: 21,
+            fontSize: 19,
             fontFamily: 'quicksand',
         },
         indicatorStyle: {
@@ -661,6 +1012,8 @@ class HeaderLogo extends React.Component {
 const Navigator = StackNavigator({
         Home: {screen: HomePageTabs},
         Movie: {screen: MovieScreen},
+        CinemaSearch: {screen: CinemaSearch},
+        Cinema: {screen: CinemaTabs},
     },
     {
         initialRouteName: 'Home',
@@ -675,7 +1028,8 @@ const Navigator = StackNavigator({
                 fontWeight: 'normal',
             },
             headerRight: (
-                <View style={{
+                <View
+                      style={{
                     alignSelf: 'stretch',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -685,6 +1039,10 @@ const Navigator = StackNavigator({
                     paddingLeft: 20,}}>
                     <TouchableOpacity onPress={() =>{
                         if(curPage !== CurPageEnum.CINEMA) {
+                            if(curPage !== CurPageEnum.INTHEATERS)
+                            {
+                                navigation.goBack();
+                            }
                             navigation.navigate('Cinemas');
                             searchBarObj.show();
                         }
@@ -706,6 +1064,10 @@ const Navigator = StackNavigator({
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => {
                         if(curPage !== CurPageEnum.CINEMA) {
+                            if(curPage !== CurPageEnum.INTHEATERS)
+                            {
+                                navigation.goBack();
+                            }
                             navigation.navigate('Cinemas');
                             searchBarObj.hide();
                         }
