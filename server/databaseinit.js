@@ -192,7 +192,6 @@ const get_cinemas = async () => {
   });
 
   const cinemas = cinemasResponses.map(response => scrap_cinema(response));
-  console.log(cinemas)
 
   const responseMovie = await get_site("https://filmspot.pt/filmes/");
   $ = cheerio.load(responseMovie.data);
