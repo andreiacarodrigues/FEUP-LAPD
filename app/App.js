@@ -58,10 +58,9 @@ class MovieScreen extends React.Component{
         curPage = CurPageEnum.OTHER;
 
         try {
-            console.log('http://' + config.ip + ':3000/movie/"' + this.props.navigation.state.params.name + '"');
             /* REQUEST DA INFO FILME */
             const request = async () => {
-                const response = await fetch('http://' + config.ip + ':3000/movie/"' + this.props.navigation.state.params.name + '"', {
+                const response = await fetch('http://' + config.ip + ':3000/movieID/' + this.props.navigation.state.params.id, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',
@@ -566,7 +565,7 @@ class InTheatersScreen extends React.Component{
                     {this.state.movies.map((movie) => (
 
                         <TouchableNativeFeedback key = {movie.name}  onPress={() =>
-                            navigate('Movie', { name: movie.name })
+                            navigate('Movie', { name: movie.name, id: movie['_id'] })
                         }>
                         <View style = {styles.inTheatersList}>
                             <Image source={{uri: movie.imageurl}} style = {styles.inTheatersListImg}/>
@@ -599,6 +598,84 @@ class InTheatersScreen extends React.Component{
                 <ActivityIndicator size="large" color="#9b3a45" />
             </View>);
         }
+    }
+}
+
+/* Search Results --------------------------------------------------------------------------------------------------- */
+
+class CinemaSearch extends React.Component {
+    state = {
+        isReady: false,
+        searchResults: [],
+    };
+
+    /* Vai buscar a lista dos cinemas */
+    async componentDidMount() {
+
+        /* Isto é necessário para ele fazer update e conseguir abrir a janela do search */
+        willFocus = this.props.navigation.addListener(
+            'willFocus',
+            payload => {
+                this.forceUpdate();
+                if(curPage !== CurPageEnum.INTHEATERS)
+                    curPage = CurPageEnum.INTHEATERS;
+            }
+        );
+
+        try {
+            /* REQUEST DOS FILMES */
+           /* const request = async () => {
+                const response = await fetch('http://' + config.ip + ':3000/movies', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const json = await response.json();
+                this.setState({movies: json});
+                this.setState({ isReady: true });
+            };
+
+            request();*/
+
+           /* Apagar isto quando a parte de cima funcionar */
+            this.setState({searchResults: getSearchResults()});
+            this.setState({ isReady: true });
+        }
+        catch(e) {
+            console.log(e);
+        }
+    }
+
+    render(){
+        const { navigate } = this.props.navigation;
+        if(this.state.isReady)
+        {
+            return( <ScrollView style={{flex: 1}}>
+                {this.state.searchResults.map((cinema) => (
+                    <TouchableNativeFeedback key = {cinema.id}  onPress={() =>
+                        navigate('CinemaInfo', { id: cinema.id }) // TODO AINDA NAO EXISTE ESTA PAGINA
+                    }>
+                        <View style = {styles.inTheatersList}>
+                            <View style = {styles.inTheatersListTextView}>
+                                <Text  style = {styles.inTheatersListTextTitle}>{cinema.name}</Text>
+
+                                <Text style = {styles.inTheatersListText}>  <Image style={{width:30, height:40}} source={require('./assets/img/location.png')}/> <Text>{cinema.location}</Text></Text>
+                            </View>
+                            <View style = {styles.inTheatersListButtonView}>
+                                <Image
+                                    style={styles.inTheatersListButton}
+                                    source={require('./assets/img/next.png')}
+                                />
+                            </View>
+                        </View>
+                    </TouchableNativeFeedback>
+                ))
+                }
+            </ScrollView>);
+        }
+        else return null;
     }
 }
 
@@ -661,6 +738,7 @@ class HeaderLogo extends React.Component {
 const Navigator = StackNavigator({
         Home: {screen: HomePageTabs},
         Movie: {screen: MovieScreen},
+        CinemaSearch: {screen: CinemaSearch},
     },
     {
         initialRouteName: 'Home',
