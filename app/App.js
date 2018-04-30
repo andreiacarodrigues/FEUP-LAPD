@@ -58,38 +58,43 @@ class MovieScreen extends React.Component{
         curPage = CurPageEnum.OTHER;
 
         try {
+            let url = 'http://' + config.ip + ':3000/movieID/' + this.props.navigation.state.params.id;
             /* REQUEST DA INFO FILME */
-            const request = async () => {
-                const response = await fetch('http://' + config.ip + ':3000/movieID/' + this.props.navigation.state.params.id, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                       }});
-                const json = await response.json();
-                this.setState({info: json});
-                console.log(json);
+            if(this.props.navigation.state.params.isDebut) {
+                url = 'http://' + config.ip + ':3000/debutID/' + this.props.navigation.state.params.id;
+            }
 
-                if(this.state.info.ratings !== [])
-                {
-                    for(let i = 0; i < this.state.info.ratings.length; i++)
+                const request = async () => {
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                           }});
+                    const json = await response.json();
+                    this.setState({info: json});
+                    console.log(json);
+
+                    if(this.state.info.ratings && this.state.info.ratings !== [])
                     {
-                        if(this.state.info.ratings[i]['Source'] === "Internet Movie Database")
+                        for(let i = 0; i < this.state.info.ratings.length; i++)
                         {
-                            this.setState({ratingImdb: this.state.info.ratings[i]['Value']});
-                        }
-                        else if(this.state.info.ratings[i]['Source'] === "Rotten Tomatoes")
-                        {
-                            this.setState({ratingRt: this.state.info.ratings[i]['Value']});
-                        }
-                        else if(this.state.info.ratings[i]['Source'] === "Metacritic")
-                        {
-                            this.setState({ratingMc: this.state.info.ratings[i]['Value']});
+                            if(this.state.info.ratings[i]['Source'] === "Internet Movie Database")
+                            {
+                                this.setState({ratingImdb: this.state.info.ratings[i]['Value']});
+                            }
+                            else if(this.state.info.ratings[i]['Source'] === "Rotten Tomatoes")
+                            {
+                                this.setState({ratingRt: this.state.info.ratings[i]['Value']});
+                            }
+                            else if(this.state.info.ratings[i]['Source'] === "Metacritic")
+                            {
+                                this.setState({ratingMc: this.state.info.ratings[i]['Value']});
+                            }
                         }
                     }
-                }
 
-                this.setState({isReady: true});
+                    this.setState({isReady: true});
             };
             request();
         }
@@ -565,7 +570,7 @@ class InTheatersScreen extends React.Component{
                     {this.state.movies.map((movie) => (
 
                         <TouchableNativeFeedback key = {movie.name}  onPress={() =>
-                            navigate('Movie', { name: movie.name, id: movie['_id'] })
+                            navigate('Movie', { name: movie.name, id: movie['_id'], isDebut: false })
                         }>
                         <View style = {styles.inTheatersList}>
                             <Image source={{uri: movie.imageurl}} style = {styles.inTheatersListImg}/>
@@ -584,6 +589,93 @@ class InTheatersScreen extends React.Component{
                         </View>
                         </TouchableNativeFeedback>
                         ))
+                    }
+                </ScrollView>
+            );
+        }
+        else{
+            return(<View  style={{
+                flex:1,
+                flexDirection:'row',
+                alignItems:'center',
+                justifyContent:'center'
+            }}>
+                <ActivityIndicator size="large" color="#9b3a45" />
+            </View>);
+        }
+    }
+}
+
+class PremiersScreen extends React.Component{
+    state = {
+        isReady: false,
+        movies: [],
+    };
+
+    /* Vai buscar a lista dos filmes */
+    async componentDidMount() {
+
+        /* Isto é necessário para ele fazer update e conseguir abrir a janela do search */
+        willFocus = this.props.navigation.addListener(
+            'willFocus',
+            payload => {
+                this.forceUpdate();
+                if(curPage !== CurPageEnum.INTHEATERS)
+                    curPage = CurPageEnum.INTHEATERS;
+            }
+        );
+
+        try {
+            /* REQUEST DOS FILMES */
+            const request = async () => {
+                const response = await fetch('http://' + config.ip + ':3000/debuts', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const json = await response.json();
+                this.setState({movies: json});
+                this.setState({ isReady: true });
+            };
+
+            request();
+        }
+        catch(e) {
+            console.log(e);
+        }
+    }
+
+    render(){
+        const { navigate } = this.props.navigation;
+        if(this.state.isReady) {
+            return(
+                <ScrollView style = {{backgroundColor: '#f4f4f4'}}
+                            keyboardShouldPersistTaps="always"
+                            keyboardDismissMode='on-drag'>
+                    {this.state.movies.map((movie) => (
+
+                        <TouchableNativeFeedback key = {movie.name}  onPress={() =>
+                            navigate('Movie', { name: movie.name, id: movie['_id'], isDebut: true })
+                        }>
+                            <View style = {styles.inTheatersList}>
+                                <Image source={{uri: movie.imageurl}} style = {styles.inTheatersListImg}/>
+                                <View style = {styles.inTheatersListTextView}>
+                                    <Text style = {styles.inTheatersListTextTitle}>{movie.name}</Text>
+                                    <Text style = {styles.inTheatersListText}>{movie.genre}</Text>
+                                    <Text style = {styles.inTheatersListText}>{movie.minAge}</Text>
+                                    <Text style = {styles.inTheatersListText}>{movie.duration} minutos</Text>
+                                </View>
+                                <View style = {styles.inTheatersListButtonView}>
+                                    <Image
+                                        style={styles.inTheatersListButton}
+                                        source={require('./assets/img/next.png')}
+                                    />
+                                </View>
+                            </View>
+                        </TouchableNativeFeedback>
+                    ))
                     }
                 </ScrollView>
             );
@@ -684,6 +776,7 @@ class CinemaSearch extends React.Component {
 const HomePageTabs = TabNavigator({
     'Cinemas': {screen: HomeScreen},
     'Em Cartaz': {screen: InTheatersScreen},
+    'Estreias': {screen: PremiersScreen},
 },
 {   tabBarComponent: TabBarTop,
     navigationOptions: ({navigation}) => ({
@@ -710,7 +803,7 @@ const HomePageTabs = TabNavigator({
         upperCaseLabel: false,
         activeTintColor:'white',
         labelStyle: {
-            fontSize: 21,
+            fontSize: 19,
             fontFamily: 'quicksand',
         },
         indicatorStyle: {
