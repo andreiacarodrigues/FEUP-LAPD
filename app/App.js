@@ -198,13 +198,13 @@ class MovieScreen extends React.Component{
                 </View>
                 <View style={{flexDirection: 'column', justifyContent: 'space-between'}}>
                     <View style={{flexDirection: 'row'}}>
-                        <TouchableNativeFeedback onPress={() => {
-                            WebBrowser.openBrowserAsync('https:' + this.state.info.trailer);
-                        }}>
+                        <TouchableHighlight onPress={() => {
+                                WebBrowser.openBrowserAsync('https:' + this.state.info.trailer);
+                            }}>
                             <View style={styles.movieTrailerBtn}>
                                 <Text style={styles.movieTrailerBtnText}> Ver Trailer</Text>
                             </View>
-                        </TouchableNativeFeedback>
+                        </TouchableHighlight>
                     </View>
                 </View>
             </ScrollView>);
@@ -275,9 +275,9 @@ class CinemaSessions extends React.Component {
         {
             return( <ScrollView style={{flex: 1}}>
                 {this.state.searchResults.map((cinema) => (
-                    <TouchableNativeFeedback key = {cinema.id}  onPress={() =>
-                        navigate('CinemaInfo', { id: cinema.id }) // TODO AINDA NAO EXISTE ESTA PAGINA
-                    }>
+                    <TouchableHighlight key = {cinema.id}  onPress={() =>
+                            navigate('CinemaInfo', { id: cinema.id }) // TODO AINDA NAO EXISTE ESTA PAGINA
+                        }>
                         <View style = {styles.inTheatersList}>
                             <View style = {styles.inTheatersListTextView}>
                                 <Text  style = {styles.inTheatersListTextTitle}>{cinema.name}</Text>
@@ -291,7 +291,7 @@ class CinemaSessions extends React.Component {
                                 />
                             </View>
                         </View>
-                    </TouchableNativeFeedback>
+                    </TouchableHighlight>
                 ))
                 }
             </ScrollView>);
@@ -351,7 +351,7 @@ class CinemaInfo extends React.Component {
         {
             return( <ScrollView style={{flex: 1}}>
                 {this.state.searchResults.map((cinema) => (
-                    <TouchableNativeFeedback key = {cinema.id}  onPress={() =>
+                    <TouchableHighlight key = {cinema.id}  onPress={() =>
                         navigate('CinemaInfo', { id: cinema.id }) // TODO AINDA NAO EXISTE ESTA PAGINA
                     }>
                         <View style = {styles.inTheatersList}>
@@ -366,7 +366,7 @@ class CinemaInfo extends React.Component {
                                 />
                             </View>
                         </View>
-                    </TouchableNativeFeedback>
+                    </TouchableHighlight>
                 ))
                 }
             </ScrollView>);
@@ -428,9 +428,9 @@ class SearchBar extends React.Component {
             <View>
                 <View style={{flexDirection:'row', padding:2, alignItems:'center', justifyContent:'center',backgroundColor:'#fff'}}>
                     <View style={{paddingLeft:15, flex:1}}>
-                        <TouchableNativeFeedback onPress={() => this.search_bar.clear() }>
+                        <TouchableHighlight onPress={() => this.search_bar.clear() }>
                             <Image source={ require('./assets/img/cancel3.png') } style={ {width: 20, height: 20 } } />
-                        </TouchableNativeFeedback>
+                        </TouchableHighlight>
                     </View>
                     <View style={{flex:6,padding:2,  paddingRight: 5, justifyContent:'center', height:50}}>
                         <TextInput
@@ -447,9 +447,9 @@ class SearchBar extends React.Component {
                         />
                     </View>
                     <View style={{paddingLeft:10,flex:1}}>
-                        <TouchableNativeFeedback onPress={() => this.onSubmit(this.state.text) }>
+                        <TouchableHighlight onPress={() => this.onSubmit(this.state.text) }>
                             <Image source={ require('./assets/img/search2.png') } style={ { width: 25, height: 25 } } />
-                        </TouchableNativeFeedback>
+                        </TouchableHighlight>
                     </View>
                 </View>
             </View>
@@ -484,25 +484,25 @@ class Search extends React.Component {
                     <View>
                         <View style={{flexDirection: 'row', backgroundColor: 'white'}}>
                             <View style={styles.searchButtonsPressed}>
-                                <TouchableNativeFeedback onPress={() => {
-                                    this.setState({search: SearchEnum.CINEMA})
-                                }}>
+                                <TouchableHighlight onPress={() => {
+                                        this.setState({search: SearchEnum.CINEMA})
+                                    }}>
                                     <Text style={styles.searchButtonsTxtPressed}>Cinema</Text>
-                                </TouchableNativeFeedback>
+                                </TouchableHighlight>
                             </View>
                             <View style={styles.searchButtons}>
-                                <TouchableNativeFeedback onPress={() => {
-                                    this.setState({search: SearchEnum.MOVIE})
-                                }}>
+                                <TouchableHighlight onPress={() => {
+                                        this.setState({search: SearchEnum.MOVIE})
+                                    }}>
                                     <Text style={styles.searchButtonsTxt}>Filme</Text>
-                                </TouchableNativeFeedback>
+                                </TouchableHighlight>
                             </View>
                             <View style={styles.searchButtons}>
-                                <TouchableNativeFeedback onPress={() => {
-                                    this.setState({search: SearchEnum.LOCATION})
-                                }}>
+                                <TouchableHighlight onPress={() => {
+                                        this.setState({search: SearchEnum.LOCATION})
+                                    }}>
                                     <Text style={styles.searchButtonsTxt}>Localização</Text>
-                                </TouchableNativeFeedback>
+                                </TouchableHighlight>
                             </View>
                         </View>
                         <SearchBar search={this.state.search}/>
@@ -514,25 +514,25 @@ class Search extends React.Component {
                     <View>
                         <View style={{flexDirection: 'row', backgroundColor: 'white'}}>
                             <View style={styles.searchButtons}>
-                                <TouchableNativeFeedback onPress={() => {
-                                    this.setState({search: SearchEnum.CINEMA})
-                                }}>
+                                <TouchableHighlight onPress={() => {
+                                        this.setState({search: SearchEnum.CINEMA})
+                                    }}>
                                     <Text style={styles.searchButtonsTxt}>Cinema</Text>
-                                </TouchableNativeFeedback>
+                                </TouchableHighlight>
                             </View>
                             <View style={styles.searchButtonsPressed}>
-                                <TouchableNativeFeedback onPress={() => {
-                                    this.setState({search: SearchEnum.MOVIE})
-                                }}>
+                                <TouchableHighlight onPress={() => {
+                                        this.setState({search: SearchEnum.MOVIE})
+                                    }}>
                                     <Text style={styles.searchButtonsTxtPressed}>Filme</Text>
-                                </TouchableNativeFeedback>
+                                </TouchableHighlight>
                             </View>
                             <View style={styles.searchButtons}>
-                                <TouchableNativeFeedback onPress={() => {
-                                    this.setState({search: SearchEnum.LOCATION})
-                                }}>
+                                <TouchableHighlight onPress={() => {
+                                        this.setState({search: SearchEnum.LOCATION})
+                                    }}>
                                     <Text style={styles.searchButtonsTxt}>Localização</Text>
-                                </TouchableNativeFeedback>
+                                </TouchableHighlight>
                             </View>
                         </View>
                         <SearchBar search={this.state.search}/>
@@ -544,25 +544,25 @@ class Search extends React.Component {
                     <View>
                         <View style={{flexDirection: 'row', backgroundColor: 'white'}}>
                             <View style={styles.searchButtons}>
-                                <TouchableNativeFeedback onPress={() => {
-                                    this.setState({search: SearchEnum.CINEMA})
-                                }}>
+                                <TouchableHighlight onPress={() => {
+                                        this.setState({search: SearchEnum.CINEMA})
+                                    }}>
                                     <Text style={styles.searchButtonsTxt}>Cinema</Text>
-                                </TouchableNativeFeedback>
+                                </TouchableHighlight>
                             </View>
                             <View style={styles.searchButtons}>
-                                <TouchableNativeFeedback onPress={() => {
-                                    this.setState({search: SearchEnum.MOVIE})
-                                }}>
+                                <TouchableHighlight onPress={() => {
+                                        this.setState({search: SearchEnum.MOVIE})
+                                    }}>
                                     <Text style={styles.searchButtonsTxt}>Filme</Text>
-                                </TouchableNativeFeedback>
+                                </TouchableHighlight>
                             </View>
                             <View style={styles.searchButtonsPressed}>
-                                <TouchableNativeFeedback onPress={() => {
-                                    this.setState({search: SearchEnum.LOCATION})
-                                }}>
+                                <TouchableHighlight onPress={() => {
+                                        this.setState({search: SearchEnum.LOCATION})
+                                    }}>
                                     <Text style={styles.searchButtonsTxtPressed}>Localização</Text>
-                                </TouchableNativeFeedback>
+                                </TouchableHighlight>
                             </View>
                         </View>
                         <SearchBar search={this.state.search}/>
@@ -676,9 +676,9 @@ class HomeScreen extends React.Component {
               return( <ScrollView style={{flex: 1}}>
                   {this.state.searchResults.map((cinema) => (
 
-                      <TouchableNativeFeedback key = {cinema.id}  onPress={() =>
+                      <TouchableHighlight key = {cinema.id}  onPress={() =>
                           navigate('CinemaInfo', { id: cinema.id }) // TODO AINDA NAO EXISTE ESTA PAGINA
-                      }>
+                        }>
                           <View style = {styles.inTheatersList}>
                               <View style = {styles.inTheatersListTextView}>
                                   <Text  style = {styles.inTheatersListTextTitle}>{cinema.name}</Text>
@@ -692,7 +692,7 @@ class HomeScreen extends React.Component {
                                   />
                               </View>
                           </View>
-                      </TouchableNativeFeedback>
+                      </TouchableHighlight>
                   ))
                   }
               </ScrollView>);
@@ -750,25 +750,25 @@ class InTheatersScreen extends React.Component{
                                keyboardDismissMode='on-drag'>
                     {this.state.movies.map((movie) => (
 
-                        <TouchableNativeFeedback key = {movie.name}  onPress={() =>
-                            navigate('Movie', { name: movie.name, id: movie['_id'], isDebut: false })
-                        }>
-                        <View style = {styles.inTheatersList}>
-                            <Image source={{uri: movie.imageurl}} style = {styles.inTheatersListImg}/>
-                            <View style = {styles.inTheatersListTextView}>
-                                <Text style = {styles.inTheatersListTextTitle}>{movie.name}</Text>
-                                <Text style = {styles.inTheatersListText}>{movie.genre}</Text>
-                                <Text style = {styles.inTheatersListText}>{movie.minAge}</Text>
-                                <Text style = {styles.inTheatersListText}>{movie.duration} minutos</Text>
+                        <TouchableHighlight key = {movie.name}  onPress={() =>
+                                navigate('Movie', { name: movie.name, id: movie['_id'], isDebut: false })
+                            }>
+                            <View style = {styles.inTheatersList}>
+                                <Image source={{uri: movie.imageurl}} style = {styles.inTheatersListImg}/>
+                                <View style = {styles.inTheatersListTextView}>
+                                    <Text style = {styles.inTheatersListTextTitle}>{movie.name}</Text>
+                                    <Text style = {styles.inTheatersListText}>{movie.genre}</Text>
+                                    <Text style = {styles.inTheatersListText}>{movie.minAge}</Text>
+                                    <Text style = {styles.inTheatersListText}>{movie.duration} minutos</Text>
+                                </View>
+                                <View style = {styles.inTheatersListButtonView}>
+                                        <Image
+                                            style={styles.inTheatersListButton}
+                                            source={require('./assets/img/next.png')}
+                                        />
+                                </View>
                             </View>
-                            <View style = {styles.inTheatersListButtonView}>
-                                    <Image
-                                        style={styles.inTheatersListButton}
-                                        source={require('./assets/img/next.png')}
-                                    />
-                            </View>
-                        </View>
-                        </TouchableNativeFeedback>
+                        </TouchableHighlight>
                         ))
                     }
                 </ScrollView>
@@ -837,9 +837,9 @@ class PremiersScreen extends React.Component{
                             keyboardDismissMode='on-drag'>
                     {this.state.movies.map((movie) => (
 
-                        <TouchableNativeFeedback key = {movie.name}  onPress={() =>
-                            navigate('Movie', { name: movie.name, id: movie['_id'], isDebut: true })
-                        }>
+                        <TouchableHighlight key = {movie.name}  onPress={() =>
+                                navigate('Movie', { name: movie.name, id: movie['_id'], isDebut: true })
+                            }>
                             <View style = {styles.inTheatersList}>
                                 <Image source={{uri: movie.imageurl}} style = {styles.inTheatersListImg}/>
                                 <View style = {styles.inTheatersListTextView}>
@@ -855,7 +855,7 @@ class PremiersScreen extends React.Component{
                                     />
                                 </View>
                             </View>
-                        </TouchableNativeFeedback>
+                        </TouchableHighlight>
                     ))
                     }
                 </ScrollView>
@@ -925,16 +925,20 @@ class CinemaSearch extends React.Component {
         const { navigate } = this.props.navigation;
         if(this.state.isReady)
         {
-            return( <ScrollView style={{flex: 1}}>
+            return( 
+            <ScrollView style={{flex: 1}}>
                 {this.state.searchResults.map((cinema) => (
-                    <TouchableNativeFeedback key = {cinema.id}  onPress={() =>
-                        navigate('CinemaInfo', { id: cinema.id }) // TODO AINDA NAO EXISTE ESTA PAGINA
-                    }>
+                    <TouchableHighlight key = {cinema.id}  onPress={() =>
+                            navigate('CinemaInfo', { id: cinema.id }) // TODO AINDA NAO EXISTE ESTA PAGINA
+                        }>
                         <View style = {styles.inTheatersList}>
                             <View style = {styles.inTheatersListTextView}>
                                 <Text  style = {styles.inTheatersListTextTitle}>{cinema.name}</Text>
 
-                                <Text style = {styles.inTheatersListText}>  <Image style={{width:30, height:40}} source={require('./assets/img/location.png')}/> <Text>{cinema.location}</Text></Text>
+                                <Text style = {styles.inTheatersListText}>  
+                                    <Image style={{width:30, height:40}} source={require('./assets/img/location.png')}/> 
+                                    <Text>{cinema.location}</Text>
+                                </Text>
                             </View>
                             <View style = {styles.inTheatersListButtonView}>
                                 <Image
@@ -943,7 +947,7 @@ class CinemaSearch extends React.Component {
                                 />
                             </View>
                         </View>
-                    </TouchableNativeFeedback>
+                    </TouchableHighlight>
                 ))
                 }
             </ScrollView>);
@@ -952,6 +956,50 @@ class CinemaSearch extends React.Component {
     }
 }
 
+class MovieSearch extends React.Component{
+    state = {
+        isReady: false,
+        movies: [],
+    };
+
+    async componentDidMount() {
+
+        /* Isto é necessário para ele fazer update e conseguir abrir a janela do search */
+        willFocus = this.props.navigation.addListener(
+            'willFocus',
+            payload => {
+                this.forceUpdate();
+                if(curPage !== CurPageEnum.INTHEATERS)
+                    curPage = CurPageEnum.INTHEATERS;
+            }
+        );
+
+        try {
+            /* REQUEST DOS FILMES */
+            const request = async () => {
+                const response = await fetch('http://' + config.ip + ':3000/movies', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const json = await response.json();
+                this.setState({movies: json});
+                this.setState({ isReady: true });
+            };
+
+            request();
+        }
+        catch(e) {
+            console.log(e);
+        }
+    }
+
+    render(){
+
+    }
+}
 /* Homepage Tabs ---------------------------------------------------------------------------------------------------- */
 
 const HomePageTabs = TabNavigator({
