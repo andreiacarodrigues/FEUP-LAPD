@@ -299,6 +299,7 @@ class CinemaSessions extends React.Component {
         else return null;
     }
 }
+
 class CinemaInfo extends React.Component {
     state = {
         isReady: false,
@@ -1000,6 +1001,7 @@ class MovieSearch extends React.Component{
 
     }
 }
+
 /* Homepage Tabs ---------------------------------------------------------------------------------------------------- */
 
 const HomePageTabs = TabNavigator({
@@ -1059,6 +1061,7 @@ class HeaderLogo extends React.Component {
 
 const Navigator = StackNavigator({
         Home: {screen: HomePageTabs},
+        MovieSearch: {screen: MovieSearch},
         Movie: {screen: MovieScreen},
         CinemaSearch: {screen: CinemaSearch},
         Cinema: {screen: CinemaTabs},
