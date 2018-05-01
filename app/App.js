@@ -223,7 +223,6 @@ class MovieScreen extends React.Component{
     }
 }
 
-
 /* Cinema Screen -------------------------------------------------------------------------------------------------- */
 class CinemaSessions extends React.Component {
     state = {
@@ -421,6 +420,7 @@ class SearchBar extends React.Component {
 
     onSubmit(text){
         console.log(text);
+        this.props.navigation.navigate('CinemaSearch');
     };
 
     render() {
@@ -458,7 +458,7 @@ class SearchBar extends React.Component {
     }
 }
 
-class Search extends React.Component {
+class Search extends React.Component{
     state = {
         search: SearchEnum.CINEMA,
         showing: false,
@@ -506,7 +506,7 @@ class Search extends React.Component {
                                 </TouchableHighlight>
                             </View>
                         </View>
-                        <SearchBar search={this.state.search}/>
+                        <SearchBar search={this.state.search} navigation={this.props.navigation} />
                     </View>
                 )
             }
@@ -644,7 +644,7 @@ class HomeScreen extends React.Component {
       if(this.state.isReady) {
               return (
                   <View style={{backgroundColor: 'black', flex: 1}}>
-                      <Search style={{zIndex:5, position: 'absolute', top:0, left:0}} ref={(ref) => searchBarObj = ref} />
+                      <Search style={{zIndex:5, position: 'absolute', top:0, left:0}} ref={(ref) => searchBarObj = ref} navigation={this.props.navigation} />
                       <MapView
                           style={{
                               zIndex :1,
@@ -1080,14 +1080,15 @@ const Navigator = StackNavigator({
             },
             headerRight: (
                 <View
-                      style={{
-                    alignSelf: 'stretch',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    backgroundColor:'#9b3a45',
-                    flexDirection:'row',
-                    paddingRight: 10,
-                    paddingLeft: 20,}}>
+                    style={{
+                        alignSelf: 'stretch',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor:'#9b3a45',
+                        flexDirection:'row',
+                        paddingRight: 10,
+                        paddingLeft: 20,
+                    }}>
                     <TouchableOpacity onPress={() =>{
                         if(curPage !== CurPageEnum.CINEMA) {
                             if(curPage !== CurPageEnum.INTHEATERS)
