@@ -899,7 +899,7 @@ class CinemaSearch extends React.Component {
         try {
             /* REQUEST DOS FILMES */
            /* const request = async () => {
-                const response = await fetch('http://' + config.ip + ':3000/movies', {
+                const response = await fetch('http://' + config.ip + ':3000/localizations', {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',
@@ -907,7 +907,7 @@ class CinemaSearch extends React.Component {
                     }
                 });
                 const json = await response.json();
-                this.setState({movies: json});
+                this.setState({searchResults: json});
                 this.setState({ isReady: true });
             };
 
