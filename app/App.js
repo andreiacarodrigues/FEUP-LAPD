@@ -1056,7 +1056,7 @@ const Navigator = StackNavigator({
                         }
                     }}>
                         <Image style={{
-                            resizeMode: 'center',
+                            resizeMode: 'contain',
                             height:25,
                             width:25,
                             paddingRight: 40,
@@ -1078,7 +1078,7 @@ const Navigator = StackNavigator({
                         }
                     }}>
                         <Image style={{
-                            resizeMode: 'center',
+                            resizeMode: 'contain',
                             height:25,
                             width:25,
                             paddingRight: 40,
