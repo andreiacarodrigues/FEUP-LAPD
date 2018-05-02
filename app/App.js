@@ -419,42 +419,116 @@ class SearchBar extends React.Component {
     };
 
     onSubmit(text){
+        this.setState({text: text});
         console.log(text);
-        this.props.navigation.navigate('CinemaSearch');
+        
+        if(this.props.search === SearchEnum.CINEMA){
+            this.props.navigation.navigate('CinemaSearch');
+        } else if(this.props.search === SearchEnum.MOVIE){
+            //this.props.navigation.navigate('MovieSearch', {text});
+        } else if(this.props.search === SearchEnum.LOCATION){
+            //this.props.navigation.navigate('LocationSearch', {text});
+        } else{
+            
+        }
     };
 
     render() {
         console.log('importante: ' + this.props.search);
-        return (
-            <View>
-                <View style={{flexDirection:'row', padding:2, alignItems:'center', justifyContent:'center',backgroundColor:'#fff'}}>
-                    <View style={{paddingLeft:15, flex:1}}>
-                        <TouchableHighlight onPress={() => this.search_bar.clear() }>
-                            <Image source={ require('./assets/img/cancel3.png') } style={ {width: 20, height: 20 } } />
-                        </TouchableHighlight>
-                    </View>
-                    <View style={{flex:6,padding:2,  paddingRight: 5, justifyContent:'center', height:50}}>
-                        <TextInput
-                            onChangeText={(text) => this.setState({text})}
-                            value={this.state.text}
-                            style={{backgroundColor:'transparent', fontFamily:'quicksand', fontSize:18, paddingLeft:20, paddingRight:20}}
-                            onSubmitEditing = {()=>{this.onSubmit(this.state.text)}}
-                            placeholder="Search"
-                            ref={element => {
-                                this.search_bar = element
-                            }}
-                            autoCorrect={false}
-                            underlineColorAndroid='transparent'
-                        />
-                    </View>
-                    <View style={{paddingLeft:10,flex:1}}>
-                        <TouchableHighlight onPress={() => this.onSubmit(this.state.text) }>
-                            <Image source={ require('./assets/img/search2.png') } style={ { width: 25, height: 25 } } />
-                        </TouchableHighlight>
+        if(this.props.search === SearchEnum.CINEMA){
+            return (
+                <View>
+                    <View style={{flexDirection:'row', padding:2, alignItems:'center', justifyContent:'center',backgroundColor:'#fff'}}>
+                        <View style={{paddingLeft:15, flex:1}}>
+                            <TouchableHighlight onPress={() => this.search_bar.clear() }>
+                                <Image source={ require('./assets/img/cancel3.png') } style={ {width: 20, height: 20 } } />
+                            </TouchableHighlight>
+                        </View>
+                        <View style={{flex:6,padding:2,  paddingRight: 5, justifyContent:'center', height:50}}>
+                            <TextInput
+                                onChangeText={(text) => this.setState({text})}
+                                value={this.state.text}
+                                style={{backgroundColor:'transparent', fontFamily:'quicksand', fontSize:18, paddingLeft:20, paddingRight:20}}
+                                onSubmitEditing = {()=>{this.onSubmit(this.state.text)}}
+                                placeholder="Search for a cinema"
+                                ref={element => {
+                                    this.search_bar = element
+                                }}
+                                autoCorrect={false}
+                                underlineColorAndroid='transparent'
+                            />
+                        </View>
+                        <View style={{paddingLeft:10,flex:1}}>
+                            <TouchableHighlight onPress={() => this.onSubmit(this.state.text) }>
+                                <Image source={ require('./assets/img/search2.png') } style={ { width: 25, height: 25 } } />
+                            </TouchableHighlight>
+                        </View>
                     </View>
                 </View>
-            </View>
-        );
+            );
+        } else if(this.props.search === SearchEnum.MOVIE){
+            /*return (
+                <View>
+                    <View style={{flexDirection:'row', padding:2, alignItems:'center', justifyContent:'center',backgroundColor:'#fff'}}>
+                        <View style={{paddingLeft:15, flex:1}}>
+                            <TouchableHighlight onPress={() => this.search_bar.clear() }>
+                                <Image source={ require('./assets/img/cancel3.png') } style={ {width: 20, height: 20 } } />
+                            </TouchableHighlight>
+                        </View>
+                        <View style={{flex:6,padding:2,  paddingRight: 5, justifyContent:'center', height:50}}>
+                            <TextInput
+                                onChangeText={(text) => this.setState({text})}
+                                value={this.state.text}
+                                style={{backgroundColor:'transparent', fontFamily:'quicksand', fontSize:18, paddingLeft:20, paddingRight:20}}
+                                onSubmitEditing = {()=>{this.onSubmit(this.state.text)}}
+                                placeholder="Search for a movie"
+                                ref={element => {
+                                    this.search_bar = element
+                                }}
+                                autoCorrect={false}
+                                underlineColorAndroid='transparent'
+                            />
+                        </View>
+                        <View style={{paddingLeft:10,flex:1}}>
+                            <TouchableHighlight onPress={() => this.onSubmit(this.state.text) }>
+                                <Image source={ require('./assets/img/search2.png') } style={ { width: 25, height: 25 } } />
+                            </TouchableHighlight>
+                        </View>
+                    </View>
+                </View>
+            );*/
+        } else if(this.props.search === SearchEnum.LOCATION){
+            /*return (
+                <View>
+                    <View style={{flexDirection:'row', padding:2, alignItems:'center', justifyContent:'center',backgroundColor:'#fff'}}>
+                        <View style={{paddingLeft:15, flex:1}}>
+                            <TouchableHighlight onPress={() => this.search_bar.clear() }>
+                                <Image source={ require('./assets/img/cancel3.png') } style={ {width: 20, height: 20 } } />
+                            </TouchableHighlight>
+                        </View>
+                        <View style={{flex:6,padding:2,  paddingRight: 5, justifyContent:'center', height:50}}>
+                            <TextInput
+                                onChangeText={(text) => this.setState({text})}
+                                value={this.state.text}
+                                style={{backgroundColor:'transparent', fontFamily:'quicksand', fontSize:18, paddingLeft:20, paddingRight:20}}
+                                onSubmitEditing = {()=>{this.onSubmit(this.state.text)}}
+                                placeholder="Search for a location"
+                                ref={element => {
+                                    this.search_bar = element
+                                }}
+                                autoCorrect={false}
+                                underlineColorAndroid='transparent'
+                            />
+                        </View>
+                        <View style={{paddingLeft:10,flex:1}}>
+                            <TouchableHighlight onPress={() => this.onSubmit(this.state.text) }>
+                                <Image source={ require('./assets/img/search2.png') } style={ { width: 25, height: 25 } } />
+                            </TouchableHighlight>
+                        </View>
+                    </View>
+                </View>
+            );*/
+        } else return null;
     }
 }
 
@@ -536,7 +610,7 @@ class Search extends React.Component{
                                 </TouchableHighlight>
                             </View>
                         </View>
-                        <SearchBar search={this.state.search}/>
+                        <SearchBar search={this.state.search} navigation={this.props.navigation}/>
                     </View>
                 )
             }
@@ -566,7 +640,7 @@ class Search extends React.Component{
                                 </TouchableHighlight>
                             </View>
                         </View>
-                        <SearchBar search={this.state.search}/>
+                        <SearchBar search={this.state.search} navigation={this.props.navigation}/>
                     </View>
                 )
             }
@@ -897,9 +971,9 @@ class CinemaSearch extends React.Component {
         );
 
         try {
-            /* REQUEST DOS FILMES */
-           /* const request = async () => {
-                const response = await fetch('http://' + config.ip + ':3000/localizations', {
+            /* REQUEST DOS CINEMAS */
+            const request = async () => {
+                const response = await fetch('http://' + config.ip + ':3000/cinema/' + 'NOS', { //ainda falta passar o text por parametro
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',
@@ -910,12 +984,12 @@ class CinemaSearch extends React.Component {
                 this.setState({searchResults: json});
                 this.setState({ isReady: true });
             };
-
-            request();*/
+            
+            request();
 
            /* Apagar isto quando a parte de cima funcionar */
-            this.setState({searchResults: getSearchResults()});
-            this.setState({ isReady: true });
+            //this.setState({searchResults: getSearchResults()});
+            //this.setState({ isReady: true });
         }
         catch(e) {
             console.log(e);
@@ -929,7 +1003,7 @@ class CinemaSearch extends React.Component {
             return( 
             <ScrollView style={{flex: 1}}>
                 {this.state.searchResults.map((cinema) => (
-                    <TouchableHighlight key = {cinema.id}  onPress={() =>
+                    <TouchableHighlight key={cinema.id}  onPress={() =>
                             navigate('CinemaInfo', { id: cinema.id }) // TODO AINDA NAO EXISTE ESTA PAGINA
                         }>
                         <View style = {styles.inTheatersList}>
