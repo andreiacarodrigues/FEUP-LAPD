@@ -1089,6 +1089,7 @@ const Navigator = StackNavigator({
     {
         initialRouteName: 'Home',
         navigationOptions: ({ navigation }) => ({
+
             headerTitle: <HeaderLogo />,
             headerStyle: {
                 backgroundColor: "#9b3a45",
@@ -1151,6 +1152,11 @@ const Navigator = StackNavigator({
                             if (searchBarObj.isShowing()) {
                                 searchBarObj.hide();
                             }
+                            const resetAction = NavigationActions.reset({
+                                index: 0,
+                                actions: [NavigationActions.navigate({ routeName: 'Home' })],
+                            });
+                            navigation.dispatch(resetAction);
                         }
                     }}>
                         <Image style={{
