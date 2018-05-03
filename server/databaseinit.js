@@ -166,7 +166,10 @@ const scrap_trailer = response => {
 };
 
 const get_debuts = async () => {
-  const response = await get_site("https://filmspot.pt/estreias/");
+  let date = new Date().toISOString().split('T')[0];
+  let year = date.split('-')[0];
+  let month =  date.split('-')[1];
+  const response = await get_site("https://filmspot.pt/estreias/" + year + month + "/");
   let $ = cheerio.load(response.data);
   let debutTasks = $("#contentsLeft > div > div.filmeLista > div.filmeListaInfo > h3 > a")
     .map((_, element) => $(element).attr("href"))
