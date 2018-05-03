@@ -1,7 +1,7 @@
 import React from 'react';
 import { WebBrowser, Font, AppLoading, MapView, Permissions } from 'expo';
 import { Picker, ActivityIndicator, AppRegistry, Dimensions, StyleSheet, Text, View, StatusBar, Button, TouchableOpacity,
-    TouchableNativeFeedback, Linking, TouchableHighlight, Image, TextInput, ScrollView } from 'react-native';
+    TouchableNativeFeedback, Linking, TouchableHighlight, Image, TextInput, ScrollView, Keyboard } from 'react-native';
 import { StackNavigator, TabBarTop, TabNavigator, NavigationActions  } from 'react-navigation';
 
 const config = require('./config/config');
@@ -95,6 +95,8 @@ class MovieScreen extends React.Component{
                         }
                     }
 
+                    if(this.state.info.trailer)
+
                     this.setState({isReady: true});
             };
             request();
@@ -106,111 +108,208 @@ class MovieScreen extends React.Component{
 
     render(){
         if(this.state.isReady) {
-            return (<ScrollView keyboardShouldPersistTaps="always"
-                                keyboardDismissMode='on-drag'>
-                <View style={{flexDirection: 'row', margin: 4}}>
-                    <View style={styles.movieScreenTopLeft}>
-                        <Image source={{uri: this.state.info.imageurl}} style={styles.movieScreenImage}/>
-                    </View>
-                    <View style={styles.movieScreenTopRight}>
-                        <View style={{
-                            flex: 3,
-                            justifyContent: 'center',
-                            backgroundColor: '#822f3b',
-                            padding: 15,
-                            marginLeft: 4
-                        }}>
-                            <Text style={styles.movieScreenTextClassTitle}> Classificação </Text>
-                            <View style={[styles.movieScreenTextWrapper, {flexDirection: 'row'}]}>
-                                <Image style={{width: 30, height: 30}} source={require('./assets/img/imdb.png')}/>
-                                <Text style={[styles.movieScreenTextClass, {justifyContent: 'center'}]}>
-                                    <Text style={{fontWeight: 'bold'}}> IMDb: </Text>
-                                    <Text>{this.state.ratingImdb}</Text>
-                                </Text>
-                            </View>
-                            <View style={[styles.movieScreenTextWrapper, {flexDirection: 'row'}]}>
-                                <Image style={{width: 30, height: 32}} source={require('./assets/img/rt.png')}/>
-                                <Text style={[styles.movieScreenTextClass, {justifyContent: 'center'}]}>
-                                    <Text style={{fontWeight: 'bold'}}> Rotten Tomatoes: </Text>
-                                    <Text>{this.state.ratingRt}</Text>
-                                </Text>
-                            </View>
-                            <View style={[styles.movieScreenTextWrapper, {flexDirection: 'row'}]}>
-                                <Image style={{width: 30, height: 30}} source={require('./assets/img/mc.png')}/>
-                                <Text style={[styles.movieScreenTextClass, {justifyContent: 'center'}]}>
-                                    <Text style={{fontWeight: 'bold'}}> Meta Critic: </Text>
-                                    <Text>{this.state.ratingMc}</Text>
-                                </Text>
+            if(this.props.navigation.state.params.isDebut)
+            {
+                return (<ScrollView keyboardShouldPersistTaps="always"
+                                    keyboardDismissMode='on-drag'>
+                    <View style={{flexDirection: 'row', margin: 4}}>
+                        <View style={styles.movieScreenTopLeft}>
+                            <Image source={{uri: this.state.info.imageurl}} style={styles.movieScreenImage}/>
+                        </View>
+                        <View style={styles.movieScreenTopRight}>
+                            <View style={{
+                                flex: 3,
+                                justifyContent: 'center',
+                                backgroundColor: '#822f3b',
+                                padding: 15,
+                                marginLeft: 4
+                            }}>
+                                <Text style={styles.movieScreenTextClassTitle}> Classificação </Text>
+                                <View style={[styles.movieScreenTextWrapper, {flexDirection: 'row'}]}>
+                                    <Image style={{width: 30, height: 30}} source={require('./assets/img/imdb.png')}/>
+                                    <Text style={[styles.movieScreenTextClass, {justifyContent: 'center'}]}>
+                                        <Text style={{fontWeight: 'bold'}}> IMDb: </Text>
+                                        <Text>{this.state.ratingImdb}</Text>
+                                    </Text>
+                                </View>
+                                <View style={[styles.movieScreenTextWrapper, {flexDirection: 'row'}]}>
+                                    <Image style={{width: 31, height: 32}} source={require('./assets/img/rt.png')}/>
+                                    <Text style={[styles.movieScreenTextClass, {justifyContent: 'center'}]}>
+                                        <Text style={{fontWeight: 'bold'}}> Rotten Tomatoes: </Text>
+                                        <Text>{this.state.ratingRt}</Text>
+                                    </Text>
+                                </View>
+                                <View style={[styles.movieScreenTextWrapper, {flexDirection: 'row'}]}>
+                                    <Image style={{width: 30, height: 30}} source={require('./assets/img/mc.png')}/>
+                                    <Text style={[styles.movieScreenTextClass, {justifyContent: 'center'}]}>
+                                        <Text style={{fontWeight: 'bold'}}> Meta Critic: </Text>
+                                        <Text>{this.state.ratingMc}</Text>
+                                    </Text>
+                                </View>
                             </View>
                         </View>
                     </View>
-                </View>
-                <View style={{
-                    flexDirection: 'column',
-                    paddingLeft: 10,
-                    paddingRight: 10,
-                    paddingTop: 8,
-                    paddingBottom: 8,
-                    backgroundColor: "white",
-                    marginLeft: 4,
-                    marginRight: 4,
-                    marginBottom: 4
-                }}>
-                    <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
-                        <Text style={{fontFamily: 'quicksand'}}> Titulo: </Text>
-                        <Text>{this.state.info.name} </Text>
-                    </Text>
-                    <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
-                        <Text style={{fontFamily: 'quicksand'}}> Titulo Original: </Text>
-                        <Text>{this.state.info.imdbtitle}</Text>
-                    </Text>
-                    <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
-                        <Text style={{fontFamily: 'quicksand'}}> Género: </Text>
-                        <Text>{this.state.info.genre}</Text>
-                    </Text>
-                    <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
-                        <Text style={{fontFamily: 'quicksand'}}> Estreia em Portugal: </Text>
-                        <Text>{this.state.info.publishedDate}</Text>
-                    </Text>
-                    <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
-                        <Text style={{fontFamily: 'quicksand'}}> Classificação Etária: </Text>
-                        <Text>{this.state.info.minAge}</Text>
-                    </Text>
-                    <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
-                        <Text style={{fontFamily: 'quicksand'}}> Duração: </Text>
-                        <Text>{this.state.info.duration} minutos</Text>
-                    </Text>
-                    <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
-                        <Text style={{fontFamily: 'quicksand'}}> Sinopse: </Text>
-                        <Text>{this.state.info.description} </Text>
-                    </Text>
-                    <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
-                        <Text style={{fontFamily: 'quicksand'}}> Com: </Text>
-                        <Text>{this.state.info.actors} </Text>
-                    </Text>
-                    <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
-                        <Text style={{fontFamily: 'quicksand'}}> Realização: </Text>
-                        <Text>{this.state.info.realizacao} </Text>
-                    </Text>
-                    <Text style={[styles.movieScreenText]}>
-                        <Text style={{fontFamily: 'quicksand'}}> Produção: </Text>
-                        <Text>{this.state.info.director} </Text>
-                    </Text>
-                </View>
-                <View style={{flexDirection: 'column', flex:1}}>
-
-                        <TouchableHighlight style={{ flexDirection: 'row',
+                    <View style={{
+                        flexDirection: 'column',
+                        paddingLeft: 10,
+                        paddingRight: 10,
+                        paddingTop: 8,
+                        paddingBottom: 8,
+                        backgroundColor: "white",
+                        marginLeft: 4,
+                        marginRight: 4,
+                        marginBottom: 4
+                    }}>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Titulo: </Text>
+                            <Text>{this.state.info.name} </Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Titulo Original: </Text>
+                            <Text>{this.state.info.imdbtitle}</Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Género: </Text>
+                            <Text>{this.state.info.genre}</Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Estreia em Portugal: </Text>
+                            <Text>{this.state.info.publishedDate}</Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Classificação Etária: </Text>
+                            <Text>{this.state.info.minAge}</Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Duração: </Text>
+                            <Text>{this.state.info.duration} minutos</Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Sinopse: </Text>
+                            <Text>{this.state.info.description} </Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Com: </Text>
+                            <Text>{this.state.info.actors} </Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Realização: </Text>
+                            <Text>{this.state.info.realizacao} </Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Produção: </Text>
+                            <Text>{this.state.info.director} </Text>
+                        </Text>
+                    </View>
+                </ScrollView>);
+            }
+            else {
+                return (<ScrollView keyboardShouldPersistTaps="always"
+                                    keyboardDismissMode='on-drag'>
+                    <View style={{flexDirection: 'row', margin: 4}}>
+                        <View style={styles.movieScreenTopLeft}>
+                            <Image source={{uri: this.state.info.imageurl}} style={styles.movieScreenImage}/>
+                        </View>
+                        <View style={styles.movieScreenTopRight}>
+                            <View style={{
+                                flex: 3,
+                                justifyContent: 'center',
+                                backgroundColor: '#822f3b',
+                                padding: 15,
+                                marginLeft: 4
+                            }}>
+                                <Text style={styles.movieScreenTextClassTitle}> Classificação </Text>
+                                <View style={[styles.movieScreenTextWrapper, {flexDirection: 'row'}]}>
+                                    <Image style={{width: 30, height: 30}} source={require('./assets/img/imdb.png')}/>
+                                    <Text style={[styles.movieScreenTextClass, {justifyContent: 'center'}]}>
+                                        <Text style={{fontWeight: 'bold'}}> IMDb: </Text>
+                                        <Text>{this.state.ratingImdb}</Text>
+                                    </Text>
+                                </View>
+                                <View style={[styles.movieScreenTextWrapper, {flexDirection: 'row'}]}>
+                                    <Image style={{width: 31, height: 32}} source={require('./assets/img/rt.png')}/>
+                                    <Text style={[styles.movieScreenTextClass, {justifyContent: 'center'}]}>
+                                        <Text style={{fontWeight: 'bold'}}> Rotten Tomatoes: </Text>
+                                        <Text>{this.state.ratingRt}</Text>
+                                    </Text>
+                                </View>
+                                <View style={[styles.movieScreenTextWrapper, {flexDirection: 'row'}]}>
+                                    <Image style={{width: 30, height: 30}} source={require('./assets/img/mc.png')}/>
+                                    <Text style={[styles.movieScreenTextClass, {justifyContent: 'center'}]}>
+                                        <Text style={{fontWeight: 'bold'}}> Meta Critic: </Text>
+                                        <Text>{this.state.ratingMc}</Text>
+                                    </Text>
+                                </View>
+                            </View>
+                        </View>
+                    </View>
+                    <View style={{
+                        flexDirection: 'column',
+                        paddingLeft: 10,
+                        paddingRight: 10,
+                        paddingTop: 8,
+                        paddingBottom: 8,
+                        backgroundColor: "white",
+                        marginLeft: 4,
+                        marginRight: 4,
+                        marginBottom: 4
+                    }}>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Titulo: </Text>
+                            <Text>{this.state.info.name} </Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Titulo Original: </Text>
+                            <Text>{this.state.info.imdbtitle}</Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Género: </Text>
+                            <Text>{this.state.info.genre}</Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Estreia em Portugal: </Text>
+                            <Text>{this.state.info.publishedDate}</Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Classificação Etária: </Text>
+                            <Text>{this.state.info.minAge}</Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Duração: </Text>
+                            <Text>{this.state.info.duration} minutos</Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Sinopse: </Text>
+                            <Text>{this.state.info.description} </Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Com: </Text>
+                            <Text>{this.state.info.actors} </Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Realização: </Text>
+                            <Text>{this.state.info.realizacao} </Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Produção: </Text>
+                            <Text>{this.state.info.director} </Text>
+                        </Text>
+                    </View>
+                    <View style={{flexDirection: 'column', flex: 1}}>
+                        <TouchableHighlight style={{
+                            flexDirection: 'row',
                             justifyContent: 'center',
-                            alignItems: 'center'}} onPress={() => {
+                            alignItems: 'center'
+                        }} onPress={() => {
                             WebBrowser.openBrowserAsync('https:' + this.state.info.trailer);
                         }}>
                             <View style={styles.movieTrailerBtn}>
                                 <Text style={styles.movieTrailerBtnText}> Ver Trailer</Text>
                             </View>
                         </TouchableHighlight>
-
-                </View>
-            </ScrollView>);
+                    </View>
+                </ScrollView>);
+            }
         }
         else
         {
@@ -231,7 +330,7 @@ class MovieScreen extends React.Component{
 class CinemaInfo extends React.Component {
     state = {
         isReady: false,
-        searchResults: [],
+        cinema: [],
     };
 
     /* Vai buscar a lista dos cinemas */
@@ -247,25 +346,23 @@ class CinemaInfo extends React.Component {
         );
 
         try {
-            /* REQUEST DOS FILMES */
-            /* const request = async () => {
-                 const response = await fetch('http://' + config.ip + ':3000/movies', {
+             const request = async () => {
+                 // const response = await fetch('http://' + config.ip + ':3000/cinemaID/' + this.props.navigation.state.params.id, {
+                 const response = await fetch('http://' + config.ip + ':3000/cinemaID/5aeb1958ae324040b4d963b4', {
                      method: 'GET',
                      headers: {
                          'Accept': 'application/json',
                          'Content-Type': 'application/json'
                      }
                  });
+
                  const json = await response.json();
-                 this.setState({movies: json});
-                 this.setState({ isReady: true });
+                 console.log(json);
+                 this.setState({cinema: json});
+                 this.setState({isReady: true});
              };
 
-             request();*/
-
-            /* Apagar isto quando a parte de cima funcionar */
-            this.setState({searchResults: getSearchResults()});
-            this.setState({ isReady: true });
+             request();
         }
         catch(e) {
             console.log(e);
@@ -276,30 +373,54 @@ class CinemaInfo extends React.Component {
         const { navigate } = this.props.navigation;
         if(this.state.isReady)
         {
-            return( <ScrollView style={{flex: 1}}>
-                {this.state.searchResults.map((cinema) => (
-                    <TouchableHighlight key = {cinema.id}  onPress={() =>
-                        navigate('CinemaInfo', { id: cinema.id }) // TODO AINDA NAO EXISTE ESTA PAGINA
-                    }>
-                        <View style = {styles.inTheatersList}>
-                            <View style = {styles.inTheatersListTextView}>
-                                <Text  style = {styles.inTheatersListTextTitle}>{cinema.name}</Text>
+            return(<View style={{flex:1, flexDirection:'column'}}>
+                <View style={{flex:1.5}}>
+                        <MapView
+                            style={{
+                                zIndex :1,
+                                flex: 1,
+                                width: Dimensions.get('window').width,
+                                height:50,
+                            }}
+                            region={{
+                                latitude: Number(this.state.cinema.geo[0].latitude),
+                                longitude: Number(this.state.cinema.geo[0].longitude),
+                                latitudeDelta: 0.0922,
+                                longitudeDelta: 0.0421
+                            }}>
 
-                                <Text style = {styles.inTheatersListText}>  <Image style={{width:30, height:40}} source={require('./assets/img/location.png')}/> <Text>{cinema.location}</Text></Text>
-                            </View>
-                            <View style = {styles.inTheatersListButtonView}>
-                                <Image
-                                    style={styles.inTheatersListButton}
-                                    source={require('./assets/img/next.png')}
-                                />
-                            </View>
-                        </View>
-                    </TouchableHighlight>
-                ))
-                }
-            </ScrollView>);
+                        <MapView.Marker
+                            coordinate={{
+                                latitude: Number(this.state.cinema.geo[0].latitude),
+                                longitude: Number(this.state.cinema.geo[0].longitude)
+                            }}
+                            title={this.state.cinema.name}
+                        />
+                    </MapView>
+                </View>
+                <View style={{flex:2, backgroundColor:'white', margin:2, paddingTop:5, paddingBottom:5}}>
+                    <View style={{margin:10}}>
+                        <Text style={styles.inTheatersListTextTitle}>Morada</Text>
+                        <Text style={styles.inTheatersListText}>{this.state.cinema.name}</Text>
+                        <Text style={styles.inTheatersListText}>{this.state.cinema.address}</Text>
+                    </View>
+                    <View style={{margin:10}}>
+                        <Text style={styles.inTheatersListTextTitle}>Contacto</Text>
+                        <Text style={styles.inTheatersListText}>{this.state.cinema.telephone}</Text>
+                    </View>
+                </View>
+            </View>);
         }
-        else return null;
+        else{
+            return(<View  style={{
+                flex:1,
+                flexDirection:'row',
+                alignItems:'center',
+                justifyContent:'center'
+            }}>
+                <ActivityIndicator size="large" color="#9b3a45" />
+            </View>);
+        }
     }
 }
 
@@ -326,7 +447,7 @@ class CinemaSessions extends React.Component {
             /* REQUEST DO CINEMA */
              const request = async () => {
                  // const response = await fetch('http://' + config.ip + ':3000/cinemaID/' + this.props.navigation.state.params.id, {
-                 const response = await fetch('http://' + config.ip + ':3000/cinemaID/5ae9c2b90a6ec2395c5c487c', {
+                 const response = await fetch('http://' + config.ip + ':3000/cinemaID/5aeb1958ae324040b4d963b4', {
                      method: 'GET',
                      headers: {
                          'Accept': 'application/json',
@@ -360,13 +481,13 @@ class CinemaSessions extends React.Component {
                            </View>
                             <View style={{flex:3.4, paddingTop:5, paddingBottom:5}}>
                                 <Text style={styles.sessionMovieTitle}>{movie.name}</Text>
-                                {movie.rooms.map((room) => (
-                                    <View style={{flexDirection: 'column', padding:4, marginTop: 5}}>
+                                {movie.rooms.map((room, index) => (
+                                    <View key={index} style={{flexDirection: 'column', padding:4, marginTop: 5}}>
                                         <Text style={[styles.sessionMovieText, {fontFamily:'quicksand'}]}>
                                             {room.name}
                                         </Text>
                                         {room.sessions.map((session, index) => (
-                                            <View style={{flexDirection: 'row'}}>
+                                            <View key={index} style={{flexDirection: 'row'}}>
                                                 <View style={[{flex:2}, index%2 && {backgroundColor: '#f5f5f5'}]}>
                                                     <Text style={styles.sessionMovieText}>Quar 25 Maio</Text>
                                                 </View>
@@ -396,7 +517,16 @@ class CinemaSessions extends React.Component {
                 }
             </ScrollView>);
         }
-        else return null;
+        else{
+            return(<View  style={{
+                flex:1,
+                flexDirection:'row',
+                alignItems:'center',
+                justifyContent:'center'
+            }}>
+                <ActivityIndicator size="large" color="#9b3a45" />
+            </View>);
+        }
     }
 }
 
@@ -442,7 +572,7 @@ class SearchBar extends React.Component {
     };
 
     onSubmit(text){
-        console.log(text);
+        Keyboard.dismiss();
         if(this.props.search === SearchEnum.CINEMA)
         {
             this.props.navigation.navigate('CinemaSearch', {search: text});
@@ -491,7 +621,7 @@ class SearchBar extends React.Component {
         }
         else if(this.props.search === SearchEnum.MOVIE)
         {
-            // this.props.navigation.navigate('CinemaSearch');
+            this.props.navigation.navigate('MovieSearch', {search: text});
         }
 
     };
@@ -748,7 +878,7 @@ class HomeScreen extends React.Component {
                                       longitude: Number(marker.geo[0].longitude)
                                   }}
                                   title={marker.name}
-                                  onCalloutPress={() => navigate('Cinema', { id: marker['_id'] })}
+                                  onCalloutPress={() => navigate('Cinema', { id: marker['_id'], name: marker.name })}
                               />
                           ))}
                       </MapView>
@@ -810,7 +940,7 @@ class InTheatersScreen extends React.Component{
                                keyboardDismissMode='on-drag'>
                     {this.state.movies.map((movie) => (
 
-                        <TouchableHighlight key = {movie.name}  onPress={() =>
+                        <TouchableHighlight key = {movie['_id']}  onPress={() =>
                             navigate('Movie', { name: movie.name, id: movie['_id'], isDebut: false })
                         }>
                         <View style = {styles.inTheatersList}>
@@ -897,7 +1027,7 @@ class PremiersScreen extends React.Component{
                             keyboardDismissMode='on-drag'>
                     {this.state.movies.map((movie) => (
 
-                        <TouchableHighlight key = {movie.name}  onPress={() =>
+                        <TouchableHighlight key = {movie['_id']}  onPress={() =>
                             navigate('Movie', { name: movie.name, id: movie['_id'], isDebut: true })
                         }>
                             <View style = {styles.inTheatersList}>
@@ -977,6 +1107,7 @@ class CinemaSearch extends React.Component {
         }
     }
     /* HERE - cinema['_id'] not defined , cinema.location not defined */
+    /* navigate('Cinema', {id: cinema['_id'], name: cinema['name'], navigator: this.props.navigation})*/
     render(){
         const { navigate } = this.props.navigation;
         if(this.state.isReady)
@@ -1020,6 +1151,101 @@ class CinemaSearch extends React.Component {
         }}>
             <ActivityIndicator size="large" color="#9b3a45" />
         </View>);
+    }
+}
+
+class MovieSearch extends React.Component{
+    state = {
+        isReady: false,
+        movies: [],
+    };
+
+    /* Vai buscar a lista dos filmes */
+    async componentDidMount() {
+
+        /* Isto é necessário para ele fazer update e conseguir abrir a janela do search */
+        willFocus = this.props.navigation.addListener(
+            'willFocus',
+            payload => {
+                this.forceUpdate();
+                if(curPage !== CurPageEnum.OTHER)
+                    curPage = CurPageEnum.OTHER;
+            }
+        );
+
+        try {
+            /* REQUEST DOS CINEMAS */
+            const request = async () => {
+                const response = await fetch('http://' + config.ip + ':3000/movies/"' +  this.props.navigation.state.params.search + '"', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const json = await response.json();
+                this.setState({movies: json});
+                this.setState({ isReady: true });
+            };
+
+            request();
+        }
+        catch(e) {
+            console.log(e);
+        }
+    }
+
+    render(){
+        const { navigate } = this.props.navigation;
+        if(this.state.isReady) {
+            if(this.state.movies !== []) {
+                return (
+                    <ScrollView style={{backgroundColor: '#f4f4f4'}}
+                                keyboardShouldPersistTaps="always"
+                                keyboardDismissMode='on-drag'>
+                        {this.state.movies.map((movie) => (
+
+                            <TouchableHighlight key={movie.name} onPress={() =>
+                                navigate('Movie', {name: movie.name, id: movie['_id'], isDebut: false})
+                            }>
+                                <View style={styles.inTheatersList}>
+                                    <Image source={{uri: movie.imageurl}} style={styles.inTheatersListImg}/>
+                                    <View style={styles.inTheatersListTextView}>
+                                        <Text style={styles.inTheatersListTextTitle}>{movie.name}</Text>
+                                        <Text style={styles.inTheatersListText}>{movie.genre}</Text>
+                                        <Text style={styles.inTheatersListText}>{movie.minAge}</Text>
+                                        <Text style={styles.inTheatersListText}>{movie.duration} minutos</Text>
+                                    </View>
+                                    <View style={styles.inTheatersListButtonView}>
+                                        <Image
+                                            style={styles.inTheatersListButton}
+                                            source={require('./assets/img/next.png')}
+                                        />
+                                    </View>
+                                </View>
+                            </TouchableHighlight>
+                        ))
+                        }
+                    </ScrollView>
+                );
+            }
+            else
+            {
+                return(<View style={{padding:10}}>
+                    <Text style={{fontSize:16, fontFamily: 'quicksand'}}>Não foram encontrados resultados para a pesquisa: "{this.props.navigation.state.params.search}".</Text>
+                </View>)
+            }
+        }
+        else{
+            return(<View  style={{
+                flex:1,
+                flexDirection:'row',
+                alignItems:'center',
+                justifyContent:'center'
+            }}>
+                <ActivityIndicator size="large" color="#9b3a45" />
+            </View>);
+        }
     }
 }
 
@@ -1084,7 +1310,15 @@ const Navigator = StackNavigator({
         Home: {screen: HomePageTabs},
         Movie: {screen: MovieScreen},
         CinemaSearch: {screen: CinemaSearch},
-        Cinema: {screen: CinemaTabs},
+        MovieSearch: {screen: MovieSearch},
+        Cinema: {screen: CinemaTabs,
+            navigationOptions:({navigation}) => ({
+                headerTitle: (
+                    <View style={styles.leftHeader}>
+                        <Text style={styles.titleHeader}>{navigation.state.params.name}</Text>
+                    </View>),
+                headerRight: (null),
+            })},
     },
     {
         initialRouteName: 'Home',
@@ -1139,18 +1373,22 @@ const Navigator = StackNavigator({
                             {
                                 navigation.goBack();
                             }
-
+                            searchBarObj.hide();
                             const resetAction = NavigationActions.reset({
                                 index: 0,
                                 actions: [NavigationActions.navigate({ routeName: 'Home' })],
                             });
                             navigation.dispatch(resetAction);
-                            searchBarObj.hide();
                         }
                         else {
                             if (searchBarObj.isShowing()) {
                                 searchBarObj.hide();
                             }
+                            const resetAction = NavigationActions.reset({
+                                index: 0,
+                                actions: [NavigationActions.navigate({ routeName: 'Home' })],
+                            });
+                            navigation.dispatch(resetAction);
                         }
                     }}>
                         <Image style={{
