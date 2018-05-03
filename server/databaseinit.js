@@ -20,7 +20,6 @@ const get_site = async url => {
 };
 
 const get_imdb = async id => {
-  // console.log("get_imdb", id);
   return await imdb.getById(id, { apiKey: imdbKEY, timeout: 3000 });
 };
 
@@ -96,13 +95,13 @@ const scrap_movie = response => {
     realizacao: $("#filmeInfoDivLeft > p> span[itemprop=director]").text(),
     director: $("#filmeInfoDivLeft > p> span[itemprop=producer]").text(),
     author: $("#filmeInfoDivLeft > p> span[itemprop=author]").text(),
-    imdbURL: $("#filmeInfoDivLeft > p> a[itemprop=sameAs]").text(),
+    imdbURL: ($("#filmeInfoDivLeft > p> a[itemprop=sameAs]").text()).split("/")[4],
     duration: $(" #filmeInfoDivRight > p > span[itemprop=duration]")
       .text()
       .replace("T", "")
       .replace("M", ""),
     genre: genres.toString(),
-    trailer: "https://filmspot.pt" + $("#filmePosterDiv > div.trailerLinkDiv > a").attr("href") || null,
+    trailer:  $("#filmePosterDiv > div.trailerLinkDiv > a").attr("href") || null,
     minAge: $("#filmeInfoDivRight > div > p > span[itemprop=contentRating]").text(),
     publishedDate: $("#filmeInfoDivRight > div > p > span[itemprop=datePublished]").text(),
     url: response.config.url
@@ -112,6 +111,9 @@ const scrap_movie = response => {
     movie.trailer = null;
   }
 
+  if(movie.imdbURL == "") {
+    movie.imdbURL = null;
+  }
   if (movie.imdbtitle == "") {
     movie.imdbtitle = movie.name;
   }
@@ -245,7 +247,7 @@ const get_cinemas = async moviesID => {
   let trailerURLs = movies
     .filter(movie => movie.trailer != null)
     .map(movie => movie.trailer)
-    .map(trailer => () => get_site(trailer));
+    .map(trailer => () => get_site("https://filmspot.pt" + trailer));
 
   //trailerURLs = trailerURLs.slice(0,10);
 
@@ -258,16 +260,17 @@ const get_cinemas = async moviesID => {
 
   const trailers = trailersResponses.map(response => scrap_trailer(response));
 
-  const imdbTasks = movies.map(movie => movie.imdbURL.split("/")[4]).map(title => () => get_imdb(title));
+  const imdbTasks = movies.filter(movie => movie.imdbURL != null).map(movie => movie.imdbURL).map(title => () => get_imdb(title));
 
   let imdbMovies = await Throttle.all(imdbTasks, {
-    maxInProgress: 1,
+    maxInProgress: 5,
     progressCallback: result => {
       console.log("imdb", result.amountDone + "/" + imdbTasks.length + "\r");
     }
   });
 
   for (var idx in imdbMovies) {
+    console.log("IMDB: " + imdbMovies[idx].imdburl.split("/")[4]);
     movies[idx].actors = imdbMovies[idx].actors;
     movies[idx].trailer = trailers[idx];
     movies[idx].ratings = imdbMovies[idx].ratings;
@@ -307,6 +310,8 @@ const get_cinemas = async moviesID => {
   cinemas.forEach(cinema => {
     cinema.movies.forEach(movie => {
       movie._id = moviesIds[movie.url];
+      
+      console.log(movie._id + ' ' + movie.url);
     });
   });
 
