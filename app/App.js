@@ -108,111 +108,208 @@ class MovieScreen extends React.Component{
 
     render(){
         if(this.state.isReady) {
-            return (<ScrollView keyboardShouldPersistTaps="always"
-                                keyboardDismissMode='on-drag'>
-                <View style={{flexDirection: 'row', margin: 4}}>
-                    <View style={styles.movieScreenTopLeft}>
-                        <Image source={{uri: this.state.info.imageurl}} style={styles.movieScreenImage}/>
-                    </View>
-                    <View style={styles.movieScreenTopRight}>
-                        <View style={{
-                            flex: 3,
-                            justifyContent: 'center',
-                            backgroundColor: '#822f3b',
-                            padding: 15,
-                            marginLeft: 4
-                        }}>
-                            <Text style={styles.movieScreenTextClassTitle}> Classificação </Text>
-                            <View style={[styles.movieScreenTextWrapper, {flexDirection: 'row'}]}>
-                                <Image style={{width: 30, height: 30}} source={require('./assets/img/imdb.png')}/>
-                                <Text style={[styles.movieScreenTextClass, {justifyContent: 'center'}]}>
-                                    <Text style={{fontWeight: 'bold'}}> IMDb: </Text>
-                                    <Text>{this.state.ratingImdb}</Text>
-                                </Text>
-                            </View>
-                            <View style={[styles.movieScreenTextWrapper, {flexDirection: 'row'}]}>
-                                <Image style={{width: 31, height: 32}} source={require('./assets/img/rt.png')}/>
-                                <Text style={[styles.movieScreenTextClass, {justifyContent: 'center'}]}>
-                                    <Text style={{fontWeight: 'bold'}}> Rotten Tomatoes: </Text>
-                                    <Text>{this.state.ratingRt}</Text>
-                                </Text>
-                            </View>
-                            <View style={[styles.movieScreenTextWrapper, {flexDirection: 'row'}]}>
-                                <Image style={{width: 30, height: 30}} source={require('./assets/img/mc.png')}/>
-                                <Text style={[styles.movieScreenTextClass, {justifyContent: 'center'}]}>
-                                    <Text style={{fontWeight: 'bold'}}> Meta Critic: </Text>
-                                    <Text>{this.state.ratingMc}</Text>
-                                </Text>
+            if(this.props.navigation.state.params.isDebut)
+            {
+                return (<ScrollView keyboardShouldPersistTaps="always"
+                                    keyboardDismissMode='on-drag'>
+                    <View style={{flexDirection: 'row', margin: 4}}>
+                        <View style={styles.movieScreenTopLeft}>
+                            <Image source={{uri: this.state.info.imageurl}} style={styles.movieScreenImage}/>
+                        </View>
+                        <View style={styles.movieScreenTopRight}>
+                            <View style={{
+                                flex: 3,
+                                justifyContent: 'center',
+                                backgroundColor: '#822f3b',
+                                padding: 15,
+                                marginLeft: 4
+                            }}>
+                                <Text style={styles.movieScreenTextClassTitle}> Classificação </Text>
+                                <View style={[styles.movieScreenTextWrapper, {flexDirection: 'row'}]}>
+                                    <Image style={{width: 30, height: 30}} source={require('./assets/img/imdb.png')}/>
+                                    <Text style={[styles.movieScreenTextClass, {justifyContent: 'center'}]}>
+                                        <Text style={{fontWeight: 'bold'}}> IMDb: </Text>
+                                        <Text>{this.state.ratingImdb}</Text>
+                                    </Text>
+                                </View>
+                                <View style={[styles.movieScreenTextWrapper, {flexDirection: 'row'}]}>
+                                    <Image style={{width: 31, height: 32}} source={require('./assets/img/rt.png')}/>
+                                    <Text style={[styles.movieScreenTextClass, {justifyContent: 'center'}]}>
+                                        <Text style={{fontWeight: 'bold'}}> Rotten Tomatoes: </Text>
+                                        <Text>{this.state.ratingRt}</Text>
+                                    </Text>
+                                </View>
+                                <View style={[styles.movieScreenTextWrapper, {flexDirection: 'row'}]}>
+                                    <Image style={{width: 30, height: 30}} source={require('./assets/img/mc.png')}/>
+                                    <Text style={[styles.movieScreenTextClass, {justifyContent: 'center'}]}>
+                                        <Text style={{fontWeight: 'bold'}}> Meta Critic: </Text>
+                                        <Text>{this.state.ratingMc}</Text>
+                                    </Text>
+                                </View>
                             </View>
                         </View>
                     </View>
-                </View>
-                <View style={{
-                    flexDirection: 'column',
-                    paddingLeft: 10,
-                    paddingRight: 10,
-                    paddingTop: 8,
-                    paddingBottom: 8,
-                    backgroundColor: "white",
-                    marginLeft: 4,
-                    marginRight: 4,
-                    marginBottom: 4
-                }}>
-                    <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
-                        <Text style={{fontFamily: 'quicksand'}}> Titulo: </Text>
-                        <Text>{this.state.info.name} </Text>
-                    </Text>
-                    <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
-                        <Text style={{fontFamily: 'quicksand'}}> Titulo Original: </Text>
-                        <Text>{this.state.info.imdbtitle}</Text>
-                    </Text>
-                    <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
-                        <Text style={{fontFamily: 'quicksand'}}> Género: </Text>
-                        <Text>{this.state.info.genre}</Text>
-                    </Text>
-                    <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
-                        <Text style={{fontFamily: 'quicksand'}}> Estreia em Portugal: </Text>
-                        <Text>{this.state.info.publishedDate}</Text>
-                    </Text>
-                    <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
-                        <Text style={{fontFamily: 'quicksand'}}> Classificação Etária: </Text>
-                        <Text>{this.state.info.minAge}</Text>
-                    </Text>
-                    <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
-                        <Text style={{fontFamily: 'quicksand'}}> Duração: </Text>
-                        <Text>{this.state.info.duration} minutos</Text>
-                    </Text>
-                    <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
-                        <Text style={{fontFamily: 'quicksand'}}> Sinopse: </Text>
-                        <Text>{this.state.info.description} </Text>
-                    </Text>
-                    <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
-                        <Text style={{fontFamily: 'quicksand'}}> Com: </Text>
-                        <Text>{this.state.info.actors} </Text>
-                    </Text>
-                    <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
-                        <Text style={{fontFamily: 'quicksand'}}> Realização: </Text>
-                        <Text>{this.state.info.realizacao} </Text>
-                    </Text>
-                    <Text style={[styles.movieScreenText]}>
-                        <Text style={{fontFamily: 'quicksand'}}> Produção: </Text>
-                        <Text>{this.state.info.director} </Text>
-                    </Text>
-                </View>
-                <View style={{flexDirection: 'column', flex:1}}>
-
-                        <TouchableHighlight style={{ flexDirection: 'row',
+                    <View style={{
+                        flexDirection: 'column',
+                        paddingLeft: 10,
+                        paddingRight: 10,
+                        paddingTop: 8,
+                        paddingBottom: 8,
+                        backgroundColor: "white",
+                        marginLeft: 4,
+                        marginRight: 4,
+                        marginBottom: 4
+                    }}>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Titulo: </Text>
+                            <Text>{this.state.info.name} </Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Titulo Original: </Text>
+                            <Text>{this.state.info.imdbtitle}</Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Género: </Text>
+                            <Text>{this.state.info.genre}</Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Estreia em Portugal: </Text>
+                            <Text>{this.state.info.publishedDate}</Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Classificação Etária: </Text>
+                            <Text>{this.state.info.minAge}</Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Duração: </Text>
+                            <Text>{this.state.info.duration} minutos</Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Sinopse: </Text>
+                            <Text>{this.state.info.description} </Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Com: </Text>
+                            <Text>{this.state.info.actors} </Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Realização: </Text>
+                            <Text>{this.state.info.realizacao} </Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Produção: </Text>
+                            <Text>{this.state.info.director} </Text>
+                        </Text>
+                    </View>
+                </ScrollView>);
+            }
+            else {
+                return (<ScrollView keyboardShouldPersistTaps="always"
+                                    keyboardDismissMode='on-drag'>
+                    <View style={{flexDirection: 'row', margin: 4}}>
+                        <View style={styles.movieScreenTopLeft}>
+                            <Image source={{uri: this.state.info.imageurl}} style={styles.movieScreenImage}/>
+                        </View>
+                        <View style={styles.movieScreenTopRight}>
+                            <View style={{
+                                flex: 3,
+                                justifyContent: 'center',
+                                backgroundColor: '#822f3b',
+                                padding: 15,
+                                marginLeft: 4
+                            }}>
+                                <Text style={styles.movieScreenTextClassTitle}> Classificação </Text>
+                                <View style={[styles.movieScreenTextWrapper, {flexDirection: 'row'}]}>
+                                    <Image style={{width: 30, height: 30}} source={require('./assets/img/imdb.png')}/>
+                                    <Text style={[styles.movieScreenTextClass, {justifyContent: 'center'}]}>
+                                        <Text style={{fontWeight: 'bold'}}> IMDb: </Text>
+                                        <Text>{this.state.ratingImdb}</Text>
+                                    </Text>
+                                </View>
+                                <View style={[styles.movieScreenTextWrapper, {flexDirection: 'row'}]}>
+                                    <Image style={{width: 31, height: 32}} source={require('./assets/img/rt.png')}/>
+                                    <Text style={[styles.movieScreenTextClass, {justifyContent: 'center'}]}>
+                                        <Text style={{fontWeight: 'bold'}}> Rotten Tomatoes: </Text>
+                                        <Text>{this.state.ratingRt}</Text>
+                                    </Text>
+                                </View>
+                                <View style={[styles.movieScreenTextWrapper, {flexDirection: 'row'}]}>
+                                    <Image style={{width: 30, height: 30}} source={require('./assets/img/mc.png')}/>
+                                    <Text style={[styles.movieScreenTextClass, {justifyContent: 'center'}]}>
+                                        <Text style={{fontWeight: 'bold'}}> Meta Critic: </Text>
+                                        <Text>{this.state.ratingMc}</Text>
+                                    </Text>
+                                </View>
+                            </View>
+                        </View>
+                    </View>
+                    <View style={{
+                        flexDirection: 'column',
+                        paddingLeft: 10,
+                        paddingRight: 10,
+                        paddingTop: 8,
+                        paddingBottom: 8,
+                        backgroundColor: "white",
+                        marginLeft: 4,
+                        marginRight: 4,
+                        marginBottom: 4
+                    }}>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Titulo: </Text>
+                            <Text>{this.state.info.name} </Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Titulo Original: </Text>
+                            <Text>{this.state.info.imdbtitle}</Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Género: </Text>
+                            <Text>{this.state.info.genre}</Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Estreia em Portugal: </Text>
+                            <Text>{this.state.info.publishedDate}</Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Classificação Etária: </Text>
+                            <Text>{this.state.info.minAge}</Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Duração: </Text>
+                            <Text>{this.state.info.duration} minutos</Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Sinopse: </Text>
+                            <Text>{this.state.info.description} </Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Com: </Text>
+                            <Text>{this.state.info.actors} </Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText, {borderBottomWidth: 1, borderBottomColor: "#f1f1f1"}]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Realização: </Text>
+                            <Text>{this.state.info.realizacao} </Text>
+                        </Text>
+                        <Text style={[styles.movieScreenText]}>
+                            <Text style={{fontFamily: 'quicksand'}}> Produção: </Text>
+                            <Text>{this.state.info.director} </Text>
+                        </Text>
+                    </View>
+                    <View style={{flexDirection: 'column', flex: 1}}>
+                        <TouchableHighlight style={{
+                            flexDirection: 'row',
                             justifyContent: 'center',
-                            alignItems: 'center'}} onPress={() => {
+                            alignItems: 'center'
+                        }} onPress={() => {
                             WebBrowser.openBrowserAsync('https:' + this.state.info.trailer);
                         }}>
                             <View style={styles.movieTrailerBtn}>
                                 <Text style={styles.movieTrailerBtnText}> Ver Trailer</Text>
                             </View>
                         </TouchableHighlight>
-
-                </View>
-            </ScrollView>);
+                    </View>
+                </ScrollView>);
+            }
         }
         else
         {
@@ -314,7 +411,16 @@ class CinemaInfo extends React.Component {
                 </View>
             </View>);
         }
-        else return null;
+        else{
+            return(<View  style={{
+                flex:1,
+                flexDirection:'row',
+                alignItems:'center',
+                justifyContent:'center'
+            }}>
+                <ActivityIndicator size="large" color="#9b3a45" />
+            </View>);
+        }
     }
 }
 
@@ -411,7 +517,16 @@ class CinemaSessions extends React.Component {
                 }
             </ScrollView>);
         }
-        else return null;
+        else{
+            return(<View  style={{
+                flex:1,
+                flexDirection:'row',
+                alignItems:'center',
+                justifyContent:'center'
+            }}>
+                <ActivityIndicator size="large" color="#9b3a45" />
+            </View>);
+        }
     }
 }
 
@@ -506,7 +621,7 @@ class SearchBar extends React.Component {
         }
         else if(this.props.search === SearchEnum.MOVIE)
         {
-            // this.props.navigation.navigate('CinemaSearch');
+            this.props.navigation.navigate('MovieSearch', {search: text});
         }
 
     };
@@ -825,7 +940,7 @@ class InTheatersScreen extends React.Component{
                                keyboardDismissMode='on-drag'>
                     {this.state.movies.map((movie) => (
 
-                        <TouchableHighlight key = {movie.name}  onPress={() =>
+                        <TouchableHighlight key = {movie['_id']}  onPress={() =>
                             navigate('Movie', { name: movie.name, id: movie['_id'], isDebut: false })
                         }>
                         <View style = {styles.inTheatersList}>
@@ -912,7 +1027,7 @@ class PremiersScreen extends React.Component{
                             keyboardDismissMode='on-drag'>
                     {this.state.movies.map((movie) => (
 
-                        <TouchableHighlight key = {movie.name}  onPress={() =>
+                        <TouchableHighlight key = {movie['_id']}  onPress={() =>
                             navigate('Movie', { name: movie.name, id: movie['_id'], isDebut: true })
                         }>
                             <View style = {styles.inTheatersList}>
@@ -1039,6 +1154,101 @@ class CinemaSearch extends React.Component {
     }
 }
 
+class MovieSearch extends React.Component{
+    state = {
+        isReady: false,
+        movies: [],
+    };
+
+    /* Vai buscar a lista dos filmes */
+    async componentDidMount() {
+
+        /* Isto é necessário para ele fazer update e conseguir abrir a janela do search */
+        willFocus = this.props.navigation.addListener(
+            'willFocus',
+            payload => {
+                this.forceUpdate();
+                if(curPage !== CurPageEnum.OTHER)
+                    curPage = CurPageEnum.OTHER;
+            }
+        );
+
+        try {
+            /* REQUEST DOS CINEMAS */
+            const request = async () => {
+                const response = await fetch('http://' + config.ip + ':3000/movies/"' +  this.props.navigation.state.params.search + '"', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const json = await response.json();
+                this.setState({movies: json});
+                this.setState({ isReady: true });
+            };
+
+            request();
+        }
+        catch(e) {
+            console.log(e);
+        }
+    }
+
+    render(){
+        const { navigate } = this.props.navigation;
+        if(this.state.isReady) {
+            if(this.state.movies !== []) {
+                return (
+                    <ScrollView style={{backgroundColor: '#f4f4f4'}}
+                                keyboardShouldPersistTaps="always"
+                                keyboardDismissMode='on-drag'>
+                        {this.state.movies.map((movie) => (
+
+                            <TouchableHighlight key={movie.name} onPress={() =>
+                                navigate('Movie', {name: movie.name, id: movie['_id'], isDebut: false})
+                            }>
+                                <View style={styles.inTheatersList}>
+                                    <Image source={{uri: movie.imageurl}} style={styles.inTheatersListImg}/>
+                                    <View style={styles.inTheatersListTextView}>
+                                        <Text style={styles.inTheatersListTextTitle}>{movie.name}</Text>
+                                        <Text style={styles.inTheatersListText}>{movie.genre}</Text>
+                                        <Text style={styles.inTheatersListText}>{movie.minAge}</Text>
+                                        <Text style={styles.inTheatersListText}>{movie.duration} minutos</Text>
+                                    </View>
+                                    <View style={styles.inTheatersListButtonView}>
+                                        <Image
+                                            style={styles.inTheatersListButton}
+                                            source={require('./assets/img/next.png')}
+                                        />
+                                    </View>
+                                </View>
+                            </TouchableHighlight>
+                        ))
+                        }
+                    </ScrollView>
+                );
+            }
+            else
+            {
+                return(<View style={{padding:10}}>
+                    <Text style={{fontSize:16, fontFamily: 'quicksand'}}>Não foram encontrados resultados para a pesquisa: "{this.props.navigation.state.params.search}".</Text>
+                </View>)
+            }
+        }
+        else{
+            return(<View  style={{
+                flex:1,
+                flexDirection:'row',
+                alignItems:'center',
+                justifyContent:'center'
+            }}>
+                <ActivityIndicator size="large" color="#9b3a45" />
+            </View>);
+        }
+    }
+}
+
 /* Homepage Tabs ---------------------------------------------------------------------------------------------------- */
 
 const HomePageTabs = TabNavigator({
@@ -1100,6 +1310,7 @@ const Navigator = StackNavigator({
         Home: {screen: HomePageTabs},
         Movie: {screen: MovieScreen},
         CinemaSearch: {screen: CinemaSearch},
+        MovieSearch: {screen: MovieSearch},
         Cinema: {screen: CinemaTabs,
             navigationOptions:({navigation}) => ({
                 headerTitle: (
