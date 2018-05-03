@@ -1,7 +1,7 @@
 import React from 'react';
 import { WebBrowser, Font, AppLoading, MapView, Permissions } from 'expo';
 import { Picker, ActivityIndicator, AppRegistry, Dimensions, StyleSheet, Text, View, StatusBar, Button, TouchableOpacity,
-    TouchableNativeFeedback, Linking, TouchableHighlight, Image, TextInput, ScrollView } from 'react-native';
+    TouchableNativeFeedback, Linking, TouchableHighlight, Image, TextInput, ScrollView, Keyboard } from 'react-native';
 import { StackNavigator, TabBarTop, TabNavigator, NavigationActions  } from 'react-navigation';
 
 const config = require('./config/config');
@@ -233,7 +233,7 @@ class MovieScreen extends React.Component{
 class CinemaInfo extends React.Component {
     state = {
         isReady: false,
-        searchResults: [],
+        cinema: [],
     };
 
     /* Vai buscar a lista dos cinemas */
@@ -249,25 +249,23 @@ class CinemaInfo extends React.Component {
         );
 
         try {
-            /* REQUEST DOS FILMES */
-            /* const request = async () => {
-                 const response = await fetch('http://' + config.ip + ':3000/movies', {
+             const request = async () => {
+                 // const response = await fetch('http://' + config.ip + ':3000/cinemaID/' + this.props.navigation.state.params.id, {
+                 const response = await fetch('http://' + config.ip + ':3000/cinemaID/5aeb1958ae324040b4d963b4', {
                      method: 'GET',
                      headers: {
                          'Accept': 'application/json',
                          'Content-Type': 'application/json'
                      }
                  });
+
                  const json = await response.json();
-                 this.setState({movies: json});
-                 this.setState({ isReady: true });
+                 console.log(json);
+                 this.setState({cinema: json});
+                 this.setState({isReady: true});
              };
 
-             request();*/
-
-            /* Apagar isto quando a parte de cima funcionar */
-            this.setState({searchResults: getSearchResults()});
-            this.setState({ isReady: true });
+             request();
         }
         catch(e) {
             console.log(e);
@@ -278,28 +276,43 @@ class CinemaInfo extends React.Component {
         const { navigate } = this.props.navigation;
         if(this.state.isReady)
         {
-            return( <ScrollView style={{flex: 1}}>
-                {this.state.searchResults.map((cinema) => (
-                    <TouchableHighlight key = {cinema.id}  onPress={() =>
-                        navigate('CinemaInfo', { id: cinema.id }) // TODO AINDA NAO EXISTE ESTA PAGINA
-                    }>
-                        <View style = {styles.inTheatersList}>
-                            <View style = {styles.inTheatersListTextView}>
-                                <Text  style = {styles.inTheatersListTextTitle}>{cinema.name}</Text>
+            return(<View style={{flex:1, flexDirection:'column'}}>
+                <View style={{flex:1.5}}>
+                        <MapView
+                            style={{
+                                zIndex :1,
+                                flex: 1,
+                                width: Dimensions.get('window').width,
+                                height:50,
+                            }}
+                            region={{
+                                latitude: Number(this.state.cinema.geo[0].latitude),
+                                longitude: Number(this.state.cinema.geo[0].longitude),
+                                latitudeDelta: 0.0922,
+                                longitudeDelta: 0.0421
+                            }}>
 
-                                <Text style = {styles.inTheatersListText}>  <Image style={{width:30, height:40}} source={require('./assets/img/location.png')}/> <Text>{cinema.location}</Text></Text>
-                            </View>
-                            <View style = {styles.inTheatersListButtonView}>
-                                <Image
-                                    style={styles.inTheatersListButton}
-                                    source={require('./assets/img/next.png')}
-                                />
-                            </View>
-                        </View>
-                    </TouchableHighlight>
-                ))
-                }
-            </ScrollView>);
+                        <MapView.Marker
+                            coordinate={{
+                                latitude: Number(this.state.cinema.geo[0].latitude),
+                                longitude: Number(this.state.cinema.geo[0].longitude)
+                            }}
+                            title={this.state.cinema.name}
+                        />
+                    </MapView>
+                </View>
+                <View style={{flex:2, backgroundColor:'white', margin:2, paddingTop:5, paddingBottom:5}}>
+                    <View style={{margin:10}}>
+                        <Text style={styles.inTheatersListTextTitle}>Morada</Text>
+                        <Text style={styles.inTheatersListText}>{this.state.cinema.name}</Text>
+                        <Text style={styles.inTheatersListText}>{this.state.cinema.address}</Text>
+                    </View>
+                    <View style={{margin:10}}>
+                        <Text style={styles.inTheatersListTextTitle}>Contacto</Text>
+                        <Text style={styles.inTheatersListText}>{this.state.cinema.telephone}</Text>
+                    </View>
+                </View>
+            </View>);
         }
         else return null;
     }
@@ -328,7 +341,7 @@ class CinemaSessions extends React.Component {
             /* REQUEST DO CINEMA */
              const request = async () => {
                  // const response = await fetch('http://' + config.ip + ':3000/cinemaID/' + this.props.navigation.state.params.id, {
-                 const response = await fetch('http://' + config.ip + ':3000/cinemaID/5ae9c2b90a6ec2395c5c487c', {
+                 const response = await fetch('http://' + config.ip + ':3000/cinemaID/5aeb1958ae324040b4d963b4', {
                      method: 'GET',
                      headers: {
                          'Accept': 'application/json',
@@ -362,13 +375,13 @@ class CinemaSessions extends React.Component {
                            </View>
                             <View style={{flex:3.4, paddingTop:5, paddingBottom:5}}>
                                 <Text style={styles.sessionMovieTitle}>{movie.name}</Text>
-                                {movie.rooms.map((room) => (
-                                    <View style={{flexDirection: 'column', padding:4, marginTop: 5}}>
+                                {movie.rooms.map((room, index) => (
+                                    <View key={index} style={{flexDirection: 'column', padding:4, marginTop: 5}}>
                                         <Text style={[styles.sessionMovieText, {fontFamily:'quicksand'}]}>
                                             {room.name}
                                         </Text>
                                         {room.sessions.map((session, index) => (
-                                            <View style={{flexDirection: 'row'}}>
+                                            <View key={index} style={{flexDirection: 'row'}}>
                                                 <View style={[{flex:2}, index%2 && {backgroundColor: '#f5f5f5'}]}>
                                                     <Text style={styles.sessionMovieText}>Quar 25 Maio</Text>
                                                 </View>
@@ -444,7 +457,7 @@ class SearchBar extends React.Component {
     };
 
     onSubmit(text){
-        console.log(text);
+        Keyboard.dismiss();
         if(this.props.search === SearchEnum.CINEMA)
         {
             this.props.navigation.navigate('CinemaSearch', {search: text});
@@ -750,7 +763,7 @@ class HomeScreen extends React.Component {
                                       longitude: Number(marker.geo[0].longitude)
                                   }}
                                   title={marker.name}
-                                  onCalloutPress={() => navigate('Cinema', { id: marker['_id'] })}
+                                  onCalloutPress={() => navigate('Cinema', { id: marker['_id'], name: marker.name })}
                               />
                           ))}
                       </MapView>
@@ -979,6 +992,7 @@ class CinemaSearch extends React.Component {
         }
     }
     /* HERE - cinema['_id'] not defined , cinema.location not defined */
+    /* navigate('Cinema', {id: cinema['_id'], name: cinema['name'], navigator: this.props.navigation})*/
     render(){
         const { navigate } = this.props.navigation;
         if(this.state.isReady)
@@ -1086,7 +1100,14 @@ const Navigator = StackNavigator({
         Home: {screen: HomePageTabs},
         Movie: {screen: MovieScreen},
         CinemaSearch: {screen: CinemaSearch},
-        Cinema: {screen: CinemaTabs},
+        Cinema: {screen: CinemaTabs,
+            navigationOptions:({navigation}) => ({
+                headerTitle: (
+                    <View style={styles.leftHeader}>
+                        <Text style={styles.titleHeader}>{navigation.state.params.name}</Text>
+                    </View>),
+                headerRight: (null),
+            })},
     },
     {
         initialRouteName: 'Home',
