@@ -95,6 +95,8 @@ class MovieScreen extends React.Component{
                         }
                     }
 
+                    if(this.state.info.trailer)
+
                     this.setState({isReady: true});
             };
             request();
@@ -129,7 +131,7 @@ class MovieScreen extends React.Component{
                                 </Text>
                             </View>
                             <View style={[styles.movieScreenTextWrapper, {flexDirection: 'row'}]}>
-                                <Image style={{width: 30, height: 32}} source={require('./assets/img/rt.png')}/>
+                                <Image style={{width: 31, height: 32}} source={require('./assets/img/rt.png')}/>
                                 <Text style={[styles.movieScreenTextClass, {justifyContent: 'center'}]}>
                                     <Text style={{fontWeight: 'bold'}}> Rotten Tomatoes: </Text>
                                     <Text>{this.state.ratingRt}</Text>
@@ -1139,18 +1141,22 @@ const Navigator = StackNavigator({
                             {
                                 navigation.goBack();
                             }
-
+                            searchBarObj.hide();
                             const resetAction = NavigationActions.reset({
                                 index: 0,
                                 actions: [NavigationActions.navigate({ routeName: 'Home' })],
                             });
                             navigation.dispatch(resetAction);
-                            searchBarObj.hide();
                         }
                         else {
                             if (searchBarObj.isShowing()) {
                                 searchBarObj.hide();
                             }
+                            const resetAction = NavigationActions.reset({
+                                index: 0,
+                                actions: [NavigationActions.navigate({ routeName: 'Home' })],
+                            });
+                            navigation.dispatch(resetAction);
                         }
                     }}>
                         <Image style={{
