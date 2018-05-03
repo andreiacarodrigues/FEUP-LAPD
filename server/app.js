@@ -159,7 +159,7 @@ app.get("/cinema/:name", async (req, res) => {
     const info = await db
       .collection("cinemas")
       .find({ $text: { $search: req.params.name } })
-      .project({ _id: 0, movies: 1, name: 1 })
+      .project({ _id: 1, movies: 1, name: 1 })
       .toArray();
     res.json(info);
   } catch (err) {
