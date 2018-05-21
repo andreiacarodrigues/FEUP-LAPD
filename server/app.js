@@ -38,22 +38,6 @@ app.get("/movies", async (req, res) => {
   }
 });
 
-app.get("/movies/:name", async (req, res) => {
-  try {
-    const client = await MongoClient.connect(url);
-    const db = client.db(dbName);
-    await db.collection("movies").createIndex({ name: "text" });
-    const docs = await db
-      .collection("movies")
-      .find({ $text: { $search: req.params.name } })
-      .project({_id: 1, name: 1, imageurl: 1, genre: 1, duration: 1, minAge: 1})
-      .toArray();
-    return res.json(docs);
-  } catch (err) {
-    return res.status(500).json(err);
-  }
-});
-
 app.get("/moviescinemas/:id", async (req, res) => {
   try {
     const client = await MongoClient.connect(url);
@@ -69,8 +53,8 @@ app.get("/moviescinemas/:id", async (req, res) => {
     const info = await db
     .collection("cinemas")
     .find({ "movies._id": new ObjectId(id) })
-    .project({_id: 1, geo: 1, name: 1})
-    .toArray();;
+    .project({_id: 1, locality: 1, name: 1})
+    .toArray();
     return res.json(info);
   } catch (err) {
     return res.status(500).json(err);
@@ -152,7 +136,7 @@ app.get("/listCinemas", async (req, res) => {
     const info = await db
       .collection("cinemas")
       .find({})
-      .project({ name: 1, address: 1, _id: 1 })
+      .project({ name: 1, locality: 1, _id: 1 })
       .toArray();
     res.json(info);
   } catch (err) {
@@ -179,15 +163,32 @@ app.get("/cinema/:name", async (req, res) => {
   try {
     const client = await MongoClient.connect(url);
     const db = client.db(dbName);
+    await db.collection("cinemas").createIndex({ name: "text" });
     const info = await db
       .collection("cinemas")
       .find({ $text: { $search: req.params.name } })
-      .project({ _id: 1, geo: 1, name: 1 })
+      .project({ _id: 1, locality: 1, name: 1 })
       .toArray();
     res.json(info);
   } catch (err) {
     return res.status(500).json(err);
   }
+});
+
+app.get("/movies/:name", async (req, res) => {
+    try {
+        const client = await MongoClient.connect(url);
+        const db = client.db(dbName);
+        await db.collection("movies").createIndex({ name: "text" });
+        const docs = await db
+            .collection("movies")
+            .find({ $text: { $search: req.params.name } })
+            .project({_id: 1, name: 1, imageurl: 1, genre: 1, duration: 1, minAge: 1})
+            .toArray();
+        return res.json(docs);
+    } catch (err) {
+        return res.status(500).json(err);
+    }
 });
 
 app.get("/localizations", async (req, res) => {

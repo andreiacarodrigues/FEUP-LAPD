@@ -92,7 +92,7 @@ class MovieScreen extends React.Component{
         }
     }
 
-    getTrailerURL(isDebut) {
+    getMoreInfo(isDebut) {
         if(!isDebut)
         {
             return(<View style={{flexDirection: 'column', flex: 1}}>
@@ -105,6 +105,18 @@ class MovieScreen extends React.Component{
                 }}>
                     <View style={styles.movieTrailerBtn}>
                         <Text style={styles.movieTrailerBtnText}> Ver Trailer</Text>
+                    </View>
+                </TouchableHighlight>
+
+                <TouchableHighlight underlayColor={'transparent'}  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }} onPress={() => {
+                    this.props.navigation.navigate('CinemaSearch', {search:this.state.info['_id'], isSearch:false})
+                }}>
+                    <View style={styles.movieTrailerBtn}>
+                        <Text style={styles.movieTrailerBtnText}> Ver Todos os Cinemas </Text>
                     </View>
                 </TouchableHighlight>
             </View>);
@@ -204,7 +216,7 @@ class MovieScreen extends React.Component{
                         <Text>{this.state.info.director} </Text>
                     </Text>
                  </View>
-                {this.getTrailerURL(this.props.navigation.state.params.isDebut)}
+                {this.getMoreInfo(this.props.navigation.state.params.isDebut)}
                 </ScrollView>);
         }
         else
@@ -478,7 +490,7 @@ class SearchBar extends React.Component {
         Keyboard.dismiss();
         if(this.props.search === SearchEnum.CINEMA)
         {
-            this.props.navigation.navigate('CinemaSearch', {search: text});
+            this.props.navigation.navigate('CinemaSearch', {search: text, isSearch:true});
         }
         else if(this.props.search === SearchEnum.LOCATION)
         {
@@ -989,20 +1001,25 @@ class CinemaSearch extends React.Component {
         );
 
         try {
+            let url = 'http://' + config.ip + ':3000/cinema/"' + this.props.navigation.state.params.search + '"';
+            if(!this.props.navigation.state.params.isSearch) {
+                url = 'http://' + config.ip + ':3000/moviescinemas/"' +  this.props.navigation.state.params.search + '"';
+            }
+
             /* REQUEST DOS CINEMAS */
             const request = async () => {
-                const response = await fetch('http://' + config.ip + ':3000/cinema/"' +  this.props.navigation.state.params.search + '"', {
+                const response = await fetch(url, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     }
-                });
+                    });
                 const json = await response.json();
                 this.setState({searchResults: json});
                 this.setState({ isReady: true });
-            };
 
+            };
             request();
         }
         catch(e) {
@@ -1026,7 +1043,7 @@ class CinemaSearch extends React.Component {
                                     <Text style={styles.inTheatersListTextTitle}>{cinema.name}</Text>
                                     <Text style={styles.inTheatersListText}> <Image style={{width: 30, height: 40}}
                                                                                     source={require('./assets/img/location.png')}/>
-                                        <Text>Localização aqui</Text></Text>
+                                        <Text>{cinema.locality}</Text></Text>
                                 </View>
                                 <View style={styles.inTheatersListButtonView}>
                                     <Image
@@ -1062,6 +1079,7 @@ class MovieSearch extends React.Component{
         isReady: false,
         movies: [],
     };
+
 
     /* Vai buscar a lista dos filmes */
     async componentDidMount() {
@@ -1101,7 +1119,7 @@ class MovieSearch extends React.Component{
     render(){
         const { navigate } = this.props.navigation;
         if(this.state.isReady) {
-            if(this.state.movies !== []) {
+            if(this.state.movies.length !== 0) {
                 return (
                     <ScrollView style={{backgroundColor: '#f4f4f4'}}
                                 keyboardShouldPersistTaps="always"
@@ -1134,7 +1152,8 @@ class MovieSearch extends React.Component{
             }
             else
             {
-                return(<View style={{padding:10}}>
+                return(
+                    <View style={{flex:1,padding:10}}>
                     <Text style={{fontSize:16, fontFamily: 'quicksand'}}>Não foram encontrados resultados para a pesquisa: "{this.props.navigation.state.params.search}".</Text>
                 </View>)
             }
@@ -1212,8 +1231,22 @@ class HeaderLogo extends React.Component {
 const Navigator = StackNavigator({
         Home: {screen: HomePageTabs},
         Movie: {screen: MovieScreen},
-        CinemaSearch: {screen: CinemaSearch},
-        MovieSearch: {screen: MovieSearch},
+        CinemaSearch: {screen: CinemaSearch,
+            navigationOptions:({navigation}) => ({
+                headerTitle: (
+                    <View style={styles.leftHeader}>
+                        <Text style={styles.titleHeader}>Pesquisa: {navigation.state.params.search}</Text>
+                    </View>),
+                headerRight: (null),
+            })},
+        MovieSearch: {screen: MovieSearch,
+            navigationOptions:({navigation}) => ({
+                headerTitle: (
+                    <View style={styles.leftHeader}>
+                        <Text style={styles.titleHeader}>Pesquisa: {navigation.state.params.search}</Text>
+                    </View>),
+                headerRight: (null),
+            })},
         Cinema: {screen: CinemaTabs,
             navigationOptions:({navigation}) => ({
                 headerTitle: (
