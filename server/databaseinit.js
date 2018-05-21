@@ -59,6 +59,10 @@ const scrap_cinema = response => {
           sessions: []
         };
         $("tr:not(:first-child)", table).each((_, tr) => {
+          let session = {
+            day: $("th", tr).text(),
+            hour: []
+          };
           $("td", tr).each((_, td) => {
             const hourText = $(td)
               .contents()
@@ -66,11 +70,9 @@ const scrap_cinema = response => {
               .text()
               .trim();
             if (hourText)
-              room.sessions.push({
-                day: $("th", tr).text(),
-                hour: hourText
-              });
+             session.hour.push(hourText)
           });
+          room.sessions.push(session);
         });
         movie.rooms.push(room);
       });
