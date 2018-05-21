@@ -30,7 +30,7 @@ app.get("/movies", async (req, res) => {
     const docs = await db
       .collection("movies")
       .find({})
-      .project({ name: 1, imageurl: 1, genre: 1, duration: 1, minAge: 1 })
+      .project({ _id:1, name: 1, imageurl: 1, genre: 1, duration: 1, minAge: 1 })
       .toArray();
     return res.json(docs);
   } catch (err) {
@@ -46,7 +46,7 @@ app.get("/movies/:name", async (req, res) => {
     const docs = await db
       .collection("movies")
       .find({ $text: { $search: req.params.name } })
-      .project({ _id: 0 })
+      .project({ })
       .toArray();
     return res.json(docs);
   } catch (err) {
@@ -129,7 +129,7 @@ app.get("/listCinemas", async (req, res) => {
     const info = await db
       .collection("cinemas")
       .find({})
-      .project({ name: 1, address: 1 })
+      .project({ name: 1, address: 1, _id: 1 })
       .toArray();
     res.json(info);
   } catch (err) {
