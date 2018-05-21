@@ -324,7 +324,7 @@ const get_cinemas = async moviesID => {
   await insertCollection(db, moviesDebuts, "debuts");
   await db.collection("movies").createIndex({ name: "text" });
   await db.collection("debuts").createIndex({ name: "text" });
-  await db.collection("cinemas").createIndex({ name: "text" });
+  await db.collection("cinemas").createIndex({ name: 1 , "movies.name": 1});
 };
 
 module.exports.get_cinemas = get_cinemas();

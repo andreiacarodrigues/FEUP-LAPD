@@ -58,10 +58,10 @@ app.get("/moviescinemas/:name", async (req, res) => {
   try {
     const client = await MongoClient.connect(url);
     const db = client.db(dbName);
-    await db.collection("movies").createIndex({ name: "text" });
+    await db.collection("cinemas").createIndex({ 'movies.name': "text" });
     const docs = await db
       .collection("cinemas")
-      .find({'movies': {$elemMatch: {name: JSON.parse(req.params.name)}}})
+      .find({ $text: { $search: req.params.name }})
       .project({name: 1})
       .toArray();
     return res.json(docs);
