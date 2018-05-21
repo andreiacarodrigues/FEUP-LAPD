@@ -54,17 +54,24 @@ app.get("/movies/:name", async (req, res) => {
   }
 });
 
-app.get("/moviescinemas/:name", async (req, res) => {
+app.get("/moviescinemas/:id", async (req, res) => {
   try {
     const client = await MongoClient.connect(url);
     const db = client.db(dbName);
-    await db.collection("cinemas").createIndex({ 'movies.name': "text" });
-    const docs = await db
-      .collection("cinemas")
-      .find({ $text: { $search: req.params.name }})
-      .project({name: 1})
-      .toArray();
-    return res.json(docs);
+    let id = req.params.id;
+
+    await db.collection("movies").createIndex({ "movies._id": 1 });
+
+    if (id.indexOf('"') >= 0) {
+      id = JSON.parse(id);
+    }
+    
+    const info = await db
+    .collection("cinemas")
+    .find({ "movies._id": new ObjectId(id) })
+    .project({_id: 1, geo: 1, name: 1})
+    .toArray();;
+    return res.json(info);
   } catch (err) {
     return res.status(500).json(err);
   }
