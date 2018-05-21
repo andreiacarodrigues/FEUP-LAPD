@@ -47,7 +47,7 @@ const scrap_cinema = response => {
   $("#contentsNoSidebar > div").each((_, element) => {
     if ($("h2", element).text() != "") {
       let movie = {
-        name: ($("h2", element).text()).split('/')[0],
+        name: ($("h2", element).text()).split('/')[0].trim(),
         url: "https://filmspot.pt" + $("h2 > a:nth-child(2)", element).attr("href"),
         imageurl: $("div > a > img.filmePosterShadow.cinemaFilmePoster", element).attr("src"),
         rooms: []

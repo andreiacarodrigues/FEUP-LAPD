@@ -54,6 +54,22 @@ app.get("/movies/:name", async (req, res) => {
   }
 });
 
+app.get("/moviescinemas/:name", async (req, res) => {
+  try {
+    const client = await MongoClient.connect(url);
+    const db = client.db(dbName);
+    await db.collection("movies").createIndex({ name: "text" });
+    const docs = await db
+      .collection("cinemas")
+      .find({'movies': {$elemMatch: {name: JSON.parse(req.params.name)}}})
+      .project({name: 1})
+      .toArray();
+    return res.json(docs);
+  } catch (err) {
+    return res.status(500).json(err);
+  }
+});
+
 app.get("/movieID/:id", async (req, res) => {
   try {
     const client = await MongoClient.connect(url);
