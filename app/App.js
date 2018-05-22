@@ -6,6 +6,8 @@ import { StackNavigator, TabBarTop, TabNavigator, NavigationActions  } from 'rea
 
 const config = require('./config/config');
 
+/* ------------------------------------- ENUMERATORS ------------------------------------------- */
+/* To know which search is being done and redirect the user to the right page */
 const SearchEnum = {
     NONE: 0,
     CINEMA: 1,
@@ -13,19 +15,29 @@ const SearchEnum = {
     MOVIE: 3,
 };
 
+/* Used for the search bar logic */
 const CurPageEnum = {
     CINEMA: 0,
     INTHEATERS: 1,
     OTHER: 2,
 };
 
+/* ----------------------------------- GLOBAL VARIABLES ---------------------------------------- */
+/* Search being done */
 let searchType = SearchEnum.NONE;
+
+/* Search bar reference (used to show/hide the bar) */
 let searchBarObj = null;
+
+/* Current page (used for the search bar logic) */
 let curPage = CurPageEnum.CINEMA;
+
+/* Default user location coordinates (if the user denies the location services) */
 let userLocation = {coords: {latitude: 38.730481, longitude: -9.146430}};
 
-/* Movie Info Page -------------------------------------------------------------------------------------------------- */
+/* ----------------------------------------- PAGES --------------------------------------------- */
 
+/* Page to showcase a movie (whether it's a movie in exibition or a debut movie) */
 class MovieScreen extends React.Component{
     state = {
         isReady: false,
@@ -36,62 +48,16 @@ class MovieScreen extends React.Component{
         ratingMc:"-",
     };
 
+    /* Adds movie title to the main navigation bar */
     static navigationOptions = ({ navigation }) => ({
         headerTitle: (
             <View style={styles.leftHeader}>
                 <Text style={styles.titleHeader}>{navigation.state.params.name}</Text>
             </View>),
-    headerRight: (null),
+        headerRight: (null),
     });
 
-    async componentDidMount() {
-        curPage = CurPageEnum.OTHER;
-
-        try {
-            let url = 'http://' + config.ip + ':3000/movieID/' + this.props.navigation.state.params.id;
-            /* REQUEST DA INFO FILME */
-            if(this.props.navigation.state.params.isDebut) {
-                console.log('here :D');
-                url = 'http://' + config.ip + ':3000/debutID/' + this.props.navigation.state.params.id;
-            }
-
-                const request = async () => {
-                    const response = await fetch(url, {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                           }});
-                    const json = await response.json();
-                    this.setState({info: json});
-
-                    if(this.state.info.ratings && this.state.info.ratings !== [])
-                    {
-                        for(let i = 0; i < this.state.info.ratings.length; i++)
-                        {
-                            if(this.state.info.ratings[i]['Source'] === "Internet Movie Database")
-                            {
-                                this.setState({ratingImdb: this.state.info.ratings[i]['Value']});
-                            }
-                            else if(this.state.info.ratings[i]['Source'] === "Rotten Tomatoes")
-                            {
-                                this.setState({ratingRt: this.state.info.ratings[i]['Value']});
-                            }
-                            else if(this.state.info.ratings[i]['Source'] === "Metacritic")
-                            {
-                                this.setState({ratingMc: this.state.info.ratings[i]['Value']});
-                            }
-                        }
-                    }
-                    this.setState({isReady: true});
-            };
-            request();
-        }
-        catch (e) {
-            console.log(e);
-        }
-    }
-
+    /* Adds the trailer button and the cinema list where the movie is available to the page layout if it's not a debut movie */
     getMoreInfo(isDebut) {
         if(!isDebut)
         {
@@ -104,7 +70,7 @@ class MovieScreen extends React.Component{
                     WebBrowser.openBrowserAsync('https:' + this.state.info.trailer);
                 }}>
                     <View style={styles.movieTrailerBtn}>
-                        <Text style={styles.movieTrailerBtnText}> Ver Trailer</Text>
+                        <Text style={styles.movieTrailerBtnText}> Ver Trailer </Text>
                     </View>
                 </TouchableHighlight>
 
@@ -122,6 +88,52 @@ class MovieScreen extends React.Component{
             </View>);
         }
         else return(null);
+    }
+
+    async componentDidMount() {
+        curPage = CurPageEnum.OTHER;
+
+        try {
+            let url = 'http://' + config.ip + ':3000/movieID/' + this.props.navigation.state.params.id;
+            if(this.props.navigation.state.params.isDebut) {
+                url = 'http://' + config.ip + ':3000/debutID/' + this.props.navigation.state.params.id;
+            }
+
+            const request = async () => {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }});
+                const json = await response.json();
+                this.setState({info: json});
+
+                if(this.state.info.ratings && this.state.info.ratings !== [])
+                {
+                    for(let i = 0; i < this.state.info.ratings.length; i++)
+                    {
+                        if(this.state.info.ratings[i]['Source'] === "Internet Movie Database")
+                        {
+                            this.setState({ratingImdb: this.state.info.ratings[i]['Value']});
+                        }
+                        else if(this.state.info.ratings[i]['Source'] === "Rotten Tomatoes")
+                        {
+                            this.setState({ratingRt: this.state.info.ratings[i]['Value']});
+                        }
+                        else if(this.state.info.ratings[i]['Source'] === "Metacritic")
+                        {
+                            this.setState({ratingMc: this.state.info.ratings[i]['Value']});
+                        }
+                    }
+                }
+                this.setState({isReady: true});
+            };
+            request();
+        }
+        catch (e) {
+            console.log(e);
+        }
     }
 
     render(){
@@ -215,9 +227,9 @@ class MovieScreen extends React.Component{
                         <Text style={{fontFamily: 'quicksand'}}> Produção: </Text>
                         <Text>{this.state.info.director} </Text>
                     </Text>
-                 </View>
+                </View>
                 {this.getMoreInfo(this.props.navigation.state.params.isDebut)}
-                </ScrollView>);
+            </ScrollView>);
         }
         else
         {
@@ -233,17 +245,14 @@ class MovieScreen extends React.Component{
     }
 }
 
-/* Cinema Screen ---------------------------------------------------------------------------------------------------- */
-
+/* Information tab to show the cinema's location and contact */
 class CinemaInfo extends React.Component {
     state = {
         isReady: false,
         cinema: [],
     };
 
-    /* Vai buscar a lista dos cinemas */
     async componentDidMount() {
-
         willFocus = this.props.navigation.addListener(
             'willFocus',
             payload => {
@@ -306,14 +315,18 @@ class CinemaInfo extends React.Component {
                     </MapView>
                 </View>
                 <View style={{flex:2, backgroundColor:'white', margin:2, paddingTop:5, paddingBottom:5}}>
-                    <View style={{margin:10}}>
-                        <Text style={styles.inTheatersListTextTitle}>Morada</Text>
-                        <Text style={styles.inTheatersListText}>{this.state.cinema.name}</Text>
-                        <Text style={styles.inTheatersListText}>{this.state.cinema.address}</Text>
+                    <View style={{margin:10}}>{this.state.cinema.address.length > 0 &&
+                        <View>
+                            <Text style={styles.inTheatersListTextTitle}>Morada</Text>
+                            <Text style={styles.inTheatersListText}>{this.state.cinema.name}</Text>
+                            <Text style={styles.inTheatersListText}>{this.state.cinema.address}</Text>
+                        </View>}
                     </View>
-                    <View style={{margin:10}}>
-                        <Text style={styles.inTheatersListTextTitle}>Contacto</Text>
-                        <Text style={styles.inTheatersListText}>{this.state.cinema.telephone}</Text>
+                    <View style={{margin:10}}>{this.state.cinema.telephone.length > 0 &&
+                        <View>
+                            <Text style={styles.inTheatersListTextTitle}>Contacto</Text>
+                            <Text style={styles.inTheatersListText}>{this.state.cinema.telephone}</Text>
+                        </View>}
                     </View>
                 </View>
             </View>);
@@ -331,6 +344,7 @@ class CinemaInfo extends React.Component {
     }
 }
 
+/* Information tab to show the movie sessions schedule in a cinema */
 class CinemaSessions extends React.Component {
     state = {
         isReady: false,
@@ -338,9 +352,6 @@ class CinemaSessions extends React.Component {
     };
 
     async componentDidMount() {
-        console.log(this.props.navigation.state.params.name);
-
-        /* Isto é necessário para ele fazer update e conseguir abrir a janela do search */
         willFocus = this.props.navigation.addListener(
             'willFocus',
             payload => {
@@ -354,7 +365,6 @@ class CinemaSessions extends React.Component {
             /* REQUEST DO CINEMA */
              const request = async () => {
                  const response = await fetch('http://' + config.ip + ':3000/cinemaID/' + this.props.navigation.state.params.id, {
-                // const response = await fetch('http://' + config.ip + ':3000/cinemaID/5b02d6acedbe240484e2720c', {
                      method: 'GET',
                      headers: {
                          'Accept': 'application/json',
@@ -373,8 +383,9 @@ class CinemaSessions extends React.Component {
         }
     }
 
-    parseSchedule(schedule, index)
-    {
+    /* Constructs the schedule for a movie based on the information received in a json and adds it to the movie element
+    in the page's layout */
+    parseSchedule(schedule, index) {
         var returnValue = [];
         for (var i = 0; i < 5; i++) {
             if(schedule[i]) {
@@ -393,44 +404,51 @@ class CinemaSessions extends React.Component {
         return returnValue;
     }
 
-    /* HERE substituir pelos valores reais */
     render(){
         const { navigate } = this.props.navigation;
-        if(this.state.isReady)
-        {
-            let counter = 0;
-            return( <ScrollView style={{flex: 1, backgroundColor: '#f4f4f4'}}>
-                {this.state.cinema.movies.map((movie) => (
-                    <TouchableHighlight underlayColor={'transparent'}  key = {movie['_id']}  onPress={() =>
-                        navigate('Movie', { name: movie.name, id: movie['_id'], isDebut: false })
-                    }>
-                        <View style={{flexDirection: 'row',margin:1, backgroundColor: 'white'}}>
-                           <View style={{ justifyContent: 'center', alignContent:'center', flex:0.8}}>
-                               <Image source={{uri: movie.imageurl}} style = {styles.inTheatersImg}/>
-                           </View>
-                            <View style={{flex:3.4, paddingTop:5, paddingBottom:5}}>
-                                <Text style={styles.sessionMovieTitle}>{movie.name}</Text>
-                                {movie.rooms.map((room, index) => (
-                                    <View key={index} style={{flexDirection: 'column', padding:4, marginTop: 5}}>
-                                        <Text style={[styles.sessionMovieText, {fontFamily:'quicksand'}]}>
-                                            {room.name}
-                                        </Text>
-                                        {room.sessions.map((session, index) => (
-                                            <View key={index} style={{flexDirection: 'row'}}>
-                                                <View style={[{flex:2,  backgroundColor: '#f5f5f5'}, index%2 && {backgroundColor: 'transparent'}]}>
-                                                    <Text style={styles.sessionMovieText}>{session.day}</Text>
+        if(this.state.isReady) {
+            if(this.state.cinema.movies.length === 0) {
+                return (<View style={{flex: 1, alignContent: 'center',padding:10}}>
+                    <Text style={[styles.sessionMovieTitle, {lineHeight:22}]}>Não existem filmes em exibição de momento no cinema selecionado.</Text>
+                </View>);
+            }
+            else {
+                return (<ScrollView style={{flex: 1, backgroundColor: '#f4f4f4'}}>
+                    {this.state.cinema.movies.map((movie) => (
+                        <TouchableHighlight underlayColor={'transparent'} key={movie['_id']} onPress={() =>
+                            navigate('Movie', {name: movie.name, id: movie['_id'], isDebut: false})
+                        }>
+                            <View style={{flexDirection: 'row', margin: 1, backgroundColor: 'white'}}>
+                                <View style={{justifyContent: 'center', alignContent: 'center', flex: 0.8}}>
+                                    <Image source={{uri: movie.imageurl}} style={styles.inTheatersImg}/>
+                                </View>
+                                <View style={{flex: 3.4, paddingTop: 5, paddingBottom: 5}}>
+                                    <Text style={styles.sessionMovieTitle}>{movie.name}</Text>
+                                    {movie.rooms.map((room, index) => (
+                                        <View key={index} style={{flexDirection: 'column', padding: 4, marginTop: 5}}>
+                                            <Text style={[styles.sessionMovieText, {fontFamily: 'quicksand'}]}>
+                                                {room.name}
+                                            </Text>
+                                            {room.sessions.map((session, index) => (
+                                                <View key={index} style={{flexDirection: 'row'}}>
+                                                    <View style={[{
+                                                        flex: 2,
+                                                        backgroundColor: '#f5f5f5'
+                                                    }, index % 2 && {backgroundColor: 'transparent'}]}>
+                                                        <Text style={styles.sessionMovieText}>{session.day}</Text>
+                                                    </View>
+                                                    {this.parseSchedule(session.hour, index)}
                                                 </View>
-                                               {this.parseSchedule(session.hour, index)}
-                                            </View>
-                                        ))}
-                                    </View>
-                                ))}
+                                            ))}
+                                        </View>
+                                    ))}
+                                </View>
                             </View>
-                        </View>
-                    </TouchableHighlight>
-                ))
-                }
-            </ScrollView>);
+                        </TouchableHighlight>
+                    ))
+                    }
+                </ScrollView>);
+            }
         }
         else{
             return(<View  style={{
@@ -445,8 +463,8 @@ class CinemaSessions extends React.Component {
     }
 }
 
-const CinemaTabs = TabNavigator(
-    {
+/* Cinema's page: schedule and info tabs */
+const CinemaTabs = TabNavigator({
         'Filmes Em Cartaz': {screen: CinemaSessions},
         'Saber Mais': {screen: CinemaInfo},
     },
@@ -472,20 +490,21 @@ const CinemaTabs = TabNavigator(
         },
     });
 
-/* Homepage Screens ------------------------------------------------------------------------------------------------- */
-
-/* Localização do mapa */
+/* Get's the user's current location using the gps */
 async function getLocationAsync() {
     const { Location } = Expo;
     return Location.getCurrentPositionAsync({enableHighAccuracy: true});
 }
 
+/* Search bar element - allows search by cinema's name, movie's name and location's name */
 class SearchBar extends React.Component {
     state = {
         text: "",
         search_bar: null,
     };
 
+    /* Search bar submit handler - handles the diferent types of search available: search by cinema's name, movie's name
+     and location's name */
     onSubmit(text){
         Keyboard.dismiss();
         if(this.props.search === SearchEnum.CINEMA)
@@ -494,8 +513,8 @@ class SearchBar extends React.Component {
         }
         else if(this.props.search === SearchEnum.LOCATION)
         {
-            let longitude;
-            let latitude;
+            let longitude = userLocation.coords.longitude;
+            let latitude = userLocation.coords.latitude;
 
             try {
                 const request = async () => {
@@ -508,13 +527,10 @@ class SearchBar extends React.Component {
                     });
                     const json = await response.json();
 
-                    if(json !== [])
+                    if(json.results.length > 0)
                     {
-                        console.log(json);
-
                         latitude = json.results[0].geometry.location.lat;
                         longitude = json.results[0].geometry.location.lng;
-                        console.log(latitude + " " + longitude);
                         this.setState({cinema: json});
                     }
                     this.setState({ isReady: true });
@@ -538,11 +554,9 @@ class SearchBar extends React.Component {
         {
             this.props.navigation.navigate('MovieSearch', {search: text});
         }
-
     };
 
     render() {
-        console.log('importante: ' + this.props.search);
         return (
             <View>
                 <View style={{flexDirection:'row', padding:2, alignItems:'center', justifyContent:'center',backgroundColor:'#fff'}}>
@@ -576,6 +590,8 @@ class SearchBar extends React.Component {
     }
 }
 
+/* Search element - includes the Search Bar element and the buttons to choose which type of search the user wants to
+perform */
 class Search extends React.Component {
     state = {
         search: SearchEnum.CINEMA,
@@ -583,20 +599,22 @@ class Search extends React.Component {
         text: "",
     };
 
+    /* Shows the search element */
     show(){
         this.setState({showing: true});
     }
 
+    /* Hides the search element */
     hide(){
         this.setState({showing: false});
     }
 
+    /* Returns state of the search element, if it's showing or not */
     isShowing(){
         return this.state.showing;
     }
 
     render(){
-        console.log('este é o search: ' + this.state.search);
         if(this.state.showing) {
             if (this.state.search === SearchEnum.CINEMA || this.state.search === SearchEnum.NONE) {
                 return (
@@ -695,6 +713,7 @@ class Search extends React.Component {
 
 }
 
+/* Application's home screen, where the map is placed and the search can be done */
 class HomeScreen extends React.Component {
     state = {
         isReady: false,
@@ -704,9 +723,7 @@ class HomeScreen extends React.Component {
         searchResults: [],
     };
 
-    /* Vai buscar as permissões de localização e os marcadores */
     async componentDidMount() {
-        /* Isto é necessário para ele fazer update e conseguir abrir a janela do search */
         willFocus = this.props.navigation.addListener(
             'willFocus',
             payload => {
@@ -724,7 +741,6 @@ class HomeScreen extends React.Component {
                 }
                 else {
                     let location = await getLocationAsync();
-                    console.log("isto é a location: " + location.coords.latitude + " " + location.coords.longitude) ;
                     userLocation = location;
                     this.setState({location: location});
                 }
@@ -740,7 +756,6 @@ class HomeScreen extends React.Component {
         }
         finally {
             try{
-                /* REQUEST DOS MARKERS */
                 const request = async () => {
                     const response = await fetch('http://' + config.ip + ':3000/localizations', {
                         method: 'GET',
@@ -761,10 +776,6 @@ class HomeScreen extends React.Component {
         }
     }
 
-    // TODO não sei se este método vai ser necessário - só fazer render dos pontos em que está perto
-    onRegionChange(region) {
-    }
-
    render(){
       const { navigate } = this.props.navigation;
       if(this.state.isReady) {
@@ -783,8 +794,7 @@ class HomeScreen extends React.Component {
                               longitude: this.state.location.coords.longitude,
                               latitudeDelta: 0.0922,
                               longitudeDelta: 0.0421
-                          }}
-                          onRegionChange={this.onRegionChange}>
+                          }}>
                           {this.state.markers.length > 0 && this.state.markers.map((marker) => (
                               <MapView.Marker
                                   key={marker.name}
@@ -805,16 +815,14 @@ class HomeScreen extends React.Component {
       }
 }
 
+/* Movies currently on theaters */
 class InTheatersScreen extends React.Component{
     state = {
         isReady: false,
         movies: [],
     };
 
-    /* Vai buscar a lista dos filmes */
     async componentDidMount() {
-
-        /* Isto é necessário para ele fazer update e conseguir abrir a janela do search */
         willFocus = this.props.navigation.addListener(
             'willFocus',
             payload => {
@@ -825,7 +833,6 @@ class InTheatersScreen extends React.Component{
         );
 
         try {
-            /* REQUEST DOS FILMES */
             const request = async () => {
                 const response = await fetch('http://' + config.ip + ':3000/movies', {
                     method: 'GET',
@@ -849,35 +856,42 @@ class InTheatersScreen extends React.Component{
     render(){
         const { navigate } = this.props.navigation;
         if(this.state.isReady) {
-            return(
-                <ScrollView style = {{backgroundColor: '#f4f4f4'}}
-                               keyboardShouldPersistTaps="always"
-                               keyboardDismissMode='on-drag'>
-                    {this.state.movies.map((movie) => (
+            if(this.state.movies.length === 0) {
+                return (<View style={{flex: 1, alignContent: 'center',padding:10}}>
+                    <Text style={[styles.sessionMovieTitle, {lineHeight:22}]}>Não existem filmes em exibição de momento.</Text>
+                </View>);
+            }
+            else {
+                return (
+                    <ScrollView style={{backgroundColor: '#f4f4f4'}}
+                                keyboardShouldPersistTaps="always"
+                                keyboardDismissMode='on-drag'>
+                        {this.state.movies.map((movie) => (
 
-                        <TouchableHighlight underlayColor={'transparent'} key = {movie['_id']}  onPress={() =>
-                            navigate('Movie', { name: movie.name, id: movie['_id'], isDebut: false })
-                        }>
-                        <View style = {styles.inTheatersList}>
-                            <Image source={{uri: movie.imageurl}} style = {styles.inTheatersListImg}/>
-                            <View style = {styles.inTheatersListTextView}>
-                                <Text style = {styles.inTheatersListTextTitle}>{movie.name}</Text>
-                                <Text style = {styles.inTheatersListText}>{movie.genre}</Text>
-                                <Text style = {styles.inTheatersListText}>{movie.minAge}</Text>
-                                <Text style = {styles.inTheatersListText}>{movie.duration} minutos</Text>
-                            </View>
-                            <View style = {styles.inTheatersListButtonView}>
-                                    <Image
-                                        style={styles.inTheatersListButton}
-                                        source={require('./assets/img/next.png')}
-                                    />
-                            </View>
-                        </View>
-                        </TouchableHighlight>
+                            <TouchableHighlight underlayColor={'transparent'} key={movie['_id']} onPress={() =>
+                                navigate('Movie', {name: movie.name, id: movie['_id'], isDebut: false})
+                            }>
+                                <View style={styles.inTheatersList}>
+                                    <Image source={{uri: movie.imageurl}} style={styles.inTheatersListImg}/>
+                                    <View style={styles.inTheatersListTextView}>
+                                        <Text style={styles.inTheatersListTextTitle}>{movie.name}</Text>
+                                        <Text style={styles.inTheatersListText}>{movie.genre}</Text>
+                                        <Text style={styles.inTheatersListText}>{movie.minAge}</Text>
+                                        <Text style={styles.inTheatersListText}>{movie.duration} minutos</Text>
+                                    </View>
+                                    <View style={styles.inTheatersListButtonView}>
+                                        <Image
+                                            style={styles.inTheatersListButton}
+                                            source={require('./assets/img/next.png')}
+                                        />
+                                    </View>
+                                </View>
+                            </TouchableHighlight>
                         ))
-                    }
-                </ScrollView>
-            );
+                        }
+                    </ScrollView>
+                );
+            }
         }
         else{
             return(<View  style={{
@@ -892,16 +906,14 @@ class InTheatersScreen extends React.Component{
     }
 }
 
+/* Movies that will premier in the near future */
 class PremiersScreen extends React.Component{
     state = {
         isReady: false,
         movies: [],
     };
 
-    /* Vai buscar a lista dos filmes */
     async componentDidMount() {
-
-        /* Isto é necessário para ele fazer update e conseguir abrir a janela do search */
         willFocus = this.props.navigation.addListener(
             'willFocus',
             payload => {
@@ -912,7 +924,6 @@ class PremiersScreen extends React.Component{
         );
 
         try {
-            /* REQUEST DOS FILMES */
             const request = async () => {
                 const response = await fetch('http://' + config.ip + ':3000/debuts', {
                     method: 'GET',
@@ -936,35 +947,42 @@ class PremiersScreen extends React.Component{
     render(){
         const { navigate } = this.props.navigation;
         if(this.state.isReady) {
-            return(
-                <ScrollView style = {{backgroundColor: '#f4f4f4'}}
-                            keyboardShouldPersistTaps="always"
-                            keyboardDismissMode='on-drag'>
-                    {this.state.movies.map((movie) => (
+            if(this.state.movies.length === 0) {
+                return (<View style={{flex: 1, alignContent: 'center',padding:10}}>
+                    <Text style={[styles.sessionMovieTitle, {lineHeight:22}]}>Não existem próximas estreias de momento.</Text>
+                </View>);
+            }
+            else {
+                return (
+                    <ScrollView style={{backgroundColor: '#f4f4f4'}}
+                                keyboardShouldPersistTaps="always"
+                                keyboardDismissMode='on-drag'>
+                        {this.state.movies.map((movie) => (
 
-                        <TouchableHighlight underlayColor={'transparent'}  key = {movie['_id']}  onPress={() =>
-                            navigate('Movie', { id: movie['_id'], name: movie.name, isDebut: true })
-                        }>
-                            <View style = {styles.inTheatersList}>
-                                <Image source={{uri: movie.imageurl}} style = {styles.inTheatersListImg}/>
-                                <View style = {styles.inTheatersListTextView}>
-                                    <Text style = {styles.inTheatersListTextTitle}>{movie.name}</Text>
-                                    <Text style = {styles.inTheatersListText}>{movie.genre}</Text>
-                                    <Text style = {styles.inTheatersListText}>{movie.minAge}</Text>
-                                    <Text style = {styles.inTheatersListText}>{movie.duration} minutos</Text>
+                            <TouchableHighlight underlayColor={'transparent'} key={movie['_id']} onPress={() =>
+                                navigate('Movie', {id: movie['_id'], name: movie.name, isDebut: true})
+                            }>
+                                <View style={styles.inTheatersList}>
+                                    <Image source={{uri: movie.imageurl}} style={styles.inTheatersListImg}/>
+                                    <View style={styles.inTheatersListTextView}>
+                                        <Text style={styles.inTheatersListTextTitle}>{movie.name}</Text>
+                                        <Text style={styles.inTheatersListText}>{movie.genre}</Text>
+                                        <Text style={styles.inTheatersListText}>{movie.minAge}</Text>
+                                        <Text style={styles.inTheatersListText}>{movie.duration} minutos</Text>
+                                    </View>
+                                    <View style={styles.inTheatersListButtonView}>
+                                        <Image
+                                            style={styles.inTheatersListButton}
+                                            source={require('./assets/img/next.png')}
+                                        />
+                                    </View>
                                 </View>
-                                <View style = {styles.inTheatersListButtonView}>
-                                    <Image
-                                        style={styles.inTheatersListButton}
-                                        source={require('./assets/img/next.png')}
-                                    />
-                                </View>
-                            </View>
-                        </TouchableHighlight>
-                    ))
-                    }
-                </ScrollView>
-            );
+                            </TouchableHighlight>
+                        ))
+                        }
+                    </ScrollView>
+                );
+            }
         }
         else{
             return(<View  style={{
@@ -979,18 +997,14 @@ class PremiersScreen extends React.Component{
     }
 }
 
-/* Search Results --------------------------------------------------------------------------------------------------- */
-
+/* Cinema search results page - lists all the cinemas that match the search made by the user */
 class CinemaSearch extends React.Component {
     state = {
         isReady: false,
         searchResults: [],
     };
 
-    /* Vai buscar a lista dos cinemas */
     async componentDidMount() {
-
-        /* Isto é necessário para ele fazer update e conseguir abrir a janela do search */
         willFocus = this.props.navigation.addListener(
             'willFocus',
             payload => {
@@ -1006,7 +1020,6 @@ class CinemaSearch extends React.Component {
                 url = 'http://' + config.ip + ':3000/moviescinemas/"' +  this.props.navigation.state.params.search + '"';
             }
 
-            /* REQUEST DOS CINEMAS */
             const request = async () => {
                 const response = await fetch(url, {
                     method: 'GET',
@@ -1026,13 +1039,12 @@ class CinemaSearch extends React.Component {
             console.log(e);
         }
     }
-    /* HERE - cinema['_id'] not defined , cinema.location not defined */
-    /* navigate('Cinema', {id: cinema['_id'], name: cinema['name'], navigator: this.props.navigation})*/
+
     render(){
         const { navigate } = this.props.navigation;
         if(this.state.isReady)
         {
-            if(this.state.searchResults !== []) {
+            if(this.state.searchResults.length !== 0) {
                 return (<ScrollView style={{flex: 1}}>
                     {this.state.searchResults.map((cinema) => (
                         <TouchableHighlight underlayColor={'transparent'} key={cinema['_id']} onPress={() =>
@@ -1058,9 +1070,9 @@ class CinemaSearch extends React.Component {
                 </ScrollView>);
             }
             else {
-                return(<View style={{padding:10}}>
-                    <Text style={{fontSize:16, fontFamily: 'quicksand'}}>Não foram encontrados resultados para a pesquisa: "{this.props.navigation.state.params.search}".</Text>
-                </View>)
+                return (<View style={{flex: 1, alignContent: 'center',padding:10}}>
+                    <Text style={[styles.sessionMovieTitle, {lineHeight:22}]}>Não foram encontrados resultados para a pesquisa: "{this.props.navigation.state.params.search}".</Text>
+                </View>);
             }
         }
         else return(<View  style={{
@@ -1074,17 +1086,14 @@ class CinemaSearch extends React.Component {
     }
 }
 
+/* Movie search results page - lists all the movies that match the search made by the user */
 class MovieSearch extends React.Component{
     state = {
         isReady: false,
         movies: [],
     };
 
-
-    /* Vai buscar a lista dos filmes */
     async componentDidMount() {
-
-        /* Isto é necessário para ele fazer update e conseguir abrir a janela do search */
         willFocus = this.props.navigation.addListener(
             'willFocus',
             payload => {
@@ -1095,7 +1104,6 @@ class MovieSearch extends React.Component{
         );
 
         try {
-            /* REQUEST DOS CINEMAS */
             const request = async () => {
                 const response = await fetch('http://' + config.ip + ':3000/movies/"' +  this.props.navigation.state.params.search + '"', {
                     method: 'GET',
@@ -1150,12 +1158,10 @@ class MovieSearch extends React.Component{
                     </ScrollView>
                 );
             }
-            else
-            {
-                return(
-                    <View style={{flex:1,padding:10}}>
-                    <Text style={{fontSize:16, fontFamily: 'quicksand'}}>Não foram encontrados resultados para a pesquisa: "{this.props.navigation.state.params.search}".</Text>
-                </View>)
+            else {
+                return (<View style={{flex: 1, alignContent: 'center',padding:10}}>
+                    <Text style={[styles.sessionMovieTitle, {lineHeight:22}]}>Não foram encontrados resultados para a pesquisa: "{this.props.navigation.state.params.search}".</Text>
+                </View>);
             }
         }
         else{
@@ -1171,8 +1177,8 @@ class MovieSearch extends React.Component{
     }
 }
 
-/* Homepage Tabs ---------------------------------------------------------------------------------------------------- */
-
+/* Homepage tabs, home screen with the map and the searching functionality, list of movies in exibition and list of next
+ premiers*/
 const HomePageTabs = TabNavigator({
     'Cinemas': {screen: HomeScreen},
     'Em Cartaz': {screen: InTheatersScreen},
@@ -1181,10 +1187,12 @@ const HomePageTabs = TabNavigator({
 {   tabBarComponent: TabBarTop,
     navigationOptions: ({navigation}) => ({
         tabBarOnPress: ({scene, jumpToIndex}) => {
-            if (scene.focused === true && scene.route.index === 0) { //if the current tab is selected and the initial route is focused => do nothing
+            //if the current tab is selected and the initial route is focused => do nothing
+            if (scene.focused === true && scene.route.index === 0) {
                 return;
             }
-            if (scene.focused === false) { //if the current tab is not selected => jump to the new tab
+            //if the current tab is not selected => jump to the new tab
+            if (scene.focused === false) {
                 if(scene.index === 0){ // Cinema
                     curPage = CurPageEnum.CINEMA;
                 }
@@ -1193,7 +1201,8 @@ const HomePageTabs = TabNavigator({
                 }
                 jumpToIndex(scene.index);
             }
-            if (scene.route.index !== 0) { //if the route is not the initial one => pop all stacked routes from the sstack to reach the initial route
+            //if the route is not the initial one => pop all stacked routes from the sstack to reach the initial route
+            if (scene.route.index !== 0) {
                 navigation.popToTop();
             }
         },
@@ -1216,9 +1225,7 @@ const HomePageTabs = TabNavigator({
     },
 });
 
-/* Homepage Header -------------------------------------------------------------------------------------------------- */
-
-/* Para pôr o logo aqui */
+/* Homepage header logo */
 class HeaderLogo extends React.Component {
     render() {
         return (
@@ -1228,12 +1235,16 @@ class HeaderLogo extends React.Component {
     }
 }
 
+/* Stack Navigator - is what allows the page flow, creates a stack where a page is inserted when accessed and it's
+removed when the navigation bar back button is clicked. The buttons on the navigation bar (search and map update)
+reset the stack, redirecting the user to the application's home page. Allows customization of what is shown on the
+navigation bar of each existent page */
 const Navigator = StackNavigator({
         Home: {screen: HomePageTabs},
         Movie: {screen: MovieScreen},
         CinemaSearch: {screen: CinemaSearch,
             navigationOptions:({navigation}) => ({
-                headerTitle: (
+                headerTitle: (navigation.state.params.isSearch &&
                     <View style={styles.leftHeader}>
                         <Text style={styles.titleHeader}>Pesquisa: {navigation.state.params.search}</Text>
                     </View>),
@@ -1351,8 +1362,7 @@ const Navigator = StackNavigator({
     }
 );
 
-// --------------------------------- Inicializador da App ---------------------------------------------
-
+/* Application initializer */
 export default class App extends React.Component {
 
     state = {
