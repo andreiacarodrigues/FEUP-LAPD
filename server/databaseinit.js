@@ -131,7 +131,10 @@ const scrap_movie = response => {
 
 const scrap_movieDebut = response => {
   let $ = cheerio.load(response.data);
-  let genres = $("#filmeInfoDivRight > p > span[itemprop=genre]").map((_, element) => $(element).text());
+  let genres = [];
+  $("#filmeInfoDivRight > p > span[itemprop=genre]").each(function(i, element) {
+    genres.push($(this).text());
+  });
 
   movie = {
     name: $("#contentsNoSidebar > div > h1 > span[itemprop=name]").text(),
