@@ -757,7 +757,7 @@ class HomeScreen extends React.Component {
         finally {
             try{
                 const request = async () => {
-                    const response = await fetch('http://' + config.ip + ':3000/localizations', {
+                    const response = await fetch('http://' + config.ip + ':3000/locations', {
                         method: 'GET',
                         headers: {
                             'Accept': 'application/json',
@@ -1053,8 +1053,8 @@ class CinemaSearch extends React.Component {
                             <View style={styles.inTheatersList}>
                                 <View style={styles.inTheatersListTextView}>
                                     <Text style={styles.inTheatersListTextTitle}>{cinema.name}</Text>
-                                    <Text style={styles.inTheatersListText}> <Image style={{width: 30, height: 40}}
-                                                                                    source={require('./assets/img/location.png')}/>
+                                    <Text style={styles.inTheatersListText}>
+                                        <Image style={{width: 50, height: 40}} source={require('./assets/img/location.png')}/>
                                         <Text>{cinema.locality}</Text></Text>
                                 </View>
                                 <View style={styles.inTheatersListButtonView}>
@@ -1247,6 +1247,8 @@ const Navigator = StackNavigator({
                 headerTitle: (navigation.state.params.isSearch &&
                     <View style={styles.leftHeader}>
                         <Text style={styles.titleHeader}>Pesquisa: {navigation.state.params.search}</Text>
+                    </View> || <View style={styles.leftHeader}>
+                        <Text style={styles.titleHeader}>Em Exibição nos Cinemas:</Text>
                     </View>),
                 headerRight: (null),
             })},
