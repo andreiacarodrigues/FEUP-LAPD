@@ -114,22 +114,7 @@ app.get("/debutID/:id", async (req, res) => {
   }
 });
 
-app.get("/debut/:name", async (req, res) => {
-  try {
-    const client = await MongoClient.connect(url);
-    const db = client.db(dbName);
-    const info = await db
-      .collection("debuts")
-      .find({ $text: { $search: req.params.name } })
-      .project({ _id: 0 })
-      .toArray();
-    res.json(info);
-  } catch (err) {
-    return res.status(500).json(err);
-  }
-});
-
-app.get("/listCinemas", async (req, res) => {
+/*app.get("/listCinemas", async (req, res) => {
   try {
     const client = await MongoClient.connect(url);
     const db = client.db(dbName);
@@ -142,7 +127,7 @@ app.get("/listCinemas", async (req, res) => {
   } catch (err) {
     return res.status(500).json(err);
   }
-});
+});*/
 
 app.get("/cinemaID/:id", async (req, res) => {
   try {
@@ -175,6 +160,22 @@ app.get("/cinema/:name", async (req, res) => {
   }
 });
 
+app.get("/debut/:name", async (req, res) => {
+    try {
+        const client = await MongoClient.connect(url);
+        const db = client.db(dbName);
+        await db.collection("debuts").createIndex({ name: "text" });
+        const docs = await db
+            .collection("debuts")
+            .find({ $text: { $search: req.params.name } })
+            .project({_id: 1, name: 1, imageurl: 1, genre: 1, duration: 1, minAge: 1})
+            .toArray();
+        return res.json(docs);
+    } catch (err) {
+        return res.status(500).json(err);
+    }
+});
+
 app.get("/movies/:name", async (req, res) => {
     try {
         const client = await MongoClient.connect(url);
@@ -191,7 +192,7 @@ app.get("/movies/:name", async (req, res) => {
     }
 });
 
-app.get("/localizations", async (req, res) => {
+app.get("/locations", async (req, res) => {
   try {
     const client = await MongoClient.connect(url);
     const db = client.db(dbName);
